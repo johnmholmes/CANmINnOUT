@@ -3,7 +3,7 @@
   used in any combination against a received event.
   An input pin, here defined as switch, will generate an on or off event.
   The event handler has been re-written so that action is determined by op Code.
-  Op codes supported are ACON, ASON, ACOF, ACON.
+  Op codes supported are ACON, ASON, ACOF, ASOF.
   This sketch doe snot include the use of the CBUS switch or LEDs.  The CBUS and CBUSConfig
   libraries must be able to accomodate this.
  
