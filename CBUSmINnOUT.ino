@@ -98,6 +98,9 @@
 
 ////////////DEFINE MODULE/////////////////////////////////////////////////
 
+// module name
+unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
+
 // constants
 const byte VER_MAJ = 1;         // code major version
 const char VER_MIN = " ";       // code minor version
@@ -115,8 +118,6 @@ const byte SWITCH[NUM_SWITCHES] = {9, 6};     // Module Switch takes input to 0V
 Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
 LEDControl moduleLED[NUM_LEDS];     //  LED as output
 
-// module name
-unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 //////////////////////////////////////////////////////////////////////////
 
