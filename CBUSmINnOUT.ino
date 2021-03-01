@@ -82,7 +82,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #define NO_CBUS_HW_UI
-#define CANBUS8MHZ 1  // set to 0 for CANBUS module with 16MHz crystal
 #define DEBUG 1       // set to 0 for no serial debug
 
 // 3rd party libraries
@@ -106,6 +105,8 @@ const byte VER_MAJ = 1;         // code major version
 const char VER_MIN = " ";       // code minor version
 const byte VER_BETA = 0;        // code beta sub-version
 const byte MODULE_ID = 99;      // CBUS module type
+
+const byte CAN_OSC_FREQ = 8000000uL;     // Oscillator frequency on the CAN2515 board
 
 #define NUM_LEDS 2              // How many LEDs are there?
 #define NUM_SWITCHES 2          // How many switchs are there?
@@ -160,7 +161,6 @@ void setupCBUS()
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
   params.setModuleId(MODULE_ID);
   params.setFlags(PF_FLiM | PF_COMBI);
-  // params.setProcessor(CPUM_ATMEL, 0x32, "328P");
 
   // assign to CBUS
   CBUS.setParams(params.getParams());
@@ -171,11 +171,7 @@ void setupCBUS()
 
   // configure and start CAN bus and CBUS message processing
   CBUS.setNumBuffers(2);         // more buffers = more memory used, fewer = less
-#if CANBUS8MHZ
-  CBUS.setOscFreq(8000000UL);   // select the crystal frequency of the CAN module to 8MHz
-#else
-  CBUS.setOscFreq(16000000UL);   // select the crystal frequency of the CAN module to 16Mhz
-#endif
+  CBUS.setOscFreq(CAN_OSC_FREQ);   // select the crystal frequency of the CAN module
   CBUS.setPins(10, 2);           // select pins for CAN bus CE and interrupt connections
   CBUS.begin();
 }
@@ -184,8 +180,8 @@ void setupCBUS()
 /// setup - runs once at power on
 //
 
-void setup() {
-
+void setup()
+{
   Serial.begin (115200);
   Serial << endl << endl << F("> ** CBUS no HWUI 2 in 2 out v1 ** ") << __FILE__ << endl;
 
@@ -214,32 +210,20 @@ void setup() {
 /// loop - runs forever
 //
 
-void loop() {
-
-  //
-  /// do CBUS message, switch and LED processing
-  //
-
+void loop()
+{
+  // do CBUS message, switch and LED processing
   CBUS.process();
 
-  //
-  /// process console commands
-  //
-
+  // process console commands
   processSerialInput();
 
-  //
-  /// Run the LED code
-  //
-
+  // Run the LED code
   for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].run();
   }
 
-  //
-  /// test for switch input
-  //
-
+  // test for switch input
   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].update();
@@ -258,9 +242,8 @@ void loop() {
       sendEvent(opCode, (i + 1));
     }
   }
-  //
-  /// bottom of loop()
-  //
+
+  // bottom of loop()
 }
 
 // Send an event routine according to Module Switch
@@ -284,14 +267,13 @@ bool sendEvent(byte opCode, unsigned int eventNo)
 #endif
 }
 
-
 //
 /// user-defined event processing function
 /// called from the CBUS library when a learned event is received
 /// it receives the event table index and the CAN frame
 //
-
-void eventhandler(byte index, CANFrame *msg) {
+void eventhandler(byte index, CANFrame *msg)
+{
   byte opc;
   byte ev;
   int eeaddress;
@@ -343,33 +325,28 @@ void eventhandler(byte index, CANFrame *msg) {
         }
       }
       break;
-
   }
 }
 
 //
 /// print code version config details and copyright notice
 //
-
-void printConfig(void) {
-
+void printConfig(void)
+{
   // code version
   Serial << F("> code version = ") << VER_MAJ << VER_MIN << F(" beta ") << VER_BETA << endl;
   Serial << F("> compiled on ") << __DATE__ << F(" at ") << __TIME__ << F(", compiler ver = ") << __cplusplus << endl;
 
   // copyright
   Serial << F("> © Martin Da Costa (MERG M6223) 2020") << endl;
-
-
-  return;
 }
 
 //
 /// command interpreter for serial console input
 //
 
-void processSerialInput(void) {
-
+void processSerialInput(void)
+{
   byte uev = 0;
   char msgstr[32], dstr[32];
 
@@ -447,7 +424,8 @@ void processSerialInput(void) {
         Serial << F("  --------------------") << endl;
 
         for (byte j = 1; j <= config.EE_NUM_NVS; j++) {
-          sprintf(msgstr, " - %02d : %3hd | 0x%02hx", j, config.readNV(j), config.readNV(j));
+          byte v = config.readNV(j);
+          sprintf(msgstr, " - %02d : %3hd | 0x%02hx", j, v, v);
           Serial << msgstr << endl;
         }
 
@@ -513,7 +491,6 @@ void processSerialInput(void) {
           }
         }
         break;
-
 
       default:
         // Serial << F("> unknown command ") << c << endl;
