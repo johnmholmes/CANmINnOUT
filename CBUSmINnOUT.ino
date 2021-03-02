@@ -81,8 +81,6 @@
 // Digital / Analog pin 5     Not Used
 //////////////////////////////////////////////////////////////////////////
 
-#define NO_CBUS_HW_UI
-#define CANBUS8MHZ 1  // set to 0 for CANBUS module with 16MHz crystal
 #define DEBUG 1       // set to 0 for no serial debug
 
 // 3rd party libraries
