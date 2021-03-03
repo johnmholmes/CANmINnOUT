@@ -92,7 +92,7 @@
 #include "LEDControl.h"          // CBUS LEDs
 #include <CBUSconfig.h>          // module configuration
 #include <cbusdefs.h>            // MERG CBUS constants
-#include "CBUSParams.h"
+#include <CBUSParams.h>
 
 ////////////DEFINE MODULE/////////////////////////////////////////////////
 
