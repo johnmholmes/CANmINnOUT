@@ -247,8 +247,8 @@ void checkSwitch(void)
 
      nv = i + 1;
 
-     eeadress = config.EE_NVS_START + (nv - 1);
-     nvval = config.readEEPROM(eeadress);
+     nvval = config.readNV(nv);
+	 
      Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
 
      switch (nvval)
@@ -370,8 +370,7 @@ void eventhandler(byte index, CANFrame *msg)
       for (int i = 0; i < NUM_LEDS; i++) {
 
         ev = i + 1;
-        eeaddress = config.EE_EVENTS_START + (index * config.EE_BYTES_PER_EVENT) + 4 + (ev - 1);
-        evval = config.readEEPROM(eeaddress);
+        evval = config.getEventEVval(index, ev);
 
         switch (evval) {
           case 1:
@@ -394,8 +393,7 @@ void eventhandler(byte index, CANFrame *msg)
       for (int i = 0; i < NUM_LEDS; i++) {
 
         ev = i + 1;
-        eeaddress = config.EE_EVENTS_START + (index * config.EE_BYTES_PER_EVENT) + 4 + (ev - 1);
-        evval = config.readEEPROM(eeaddress);
+        evval = config.getEventEVval(index, ev);
 
         if (evval > 0) {
            moduleLED[i].off();
