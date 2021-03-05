@@ -3,6 +3,10 @@
 ///
 //
 /**************************************************************************************
+   Version 1a
+  Switch input function is defined by Node Values where NV1 is switch 1, NV2 is switch 2, etc.
+  Values are: ON/OFF switch = 0; ON only pushbutton = 1; OFF only pb = 2; ON/OFF pb = 3.
+**************************************************************************************** 
    Version 1
   Allows all available Arduino pins to be allocated as either an input or output (but not both!).
   Each output pin, here defined as LED, is assigned to an Event Variable that can be
@@ -101,7 +105,7 @@ unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 // constants
 const byte VER_MAJ = 1;         // code major version
-const char VER_MIN = " ";       // code minor version
+const char VER_MIN = "a";       // code minor version
 const byte VER_BETA = 0;        // code beta sub-version
 const byte MODULE_ID = 99;      // CBUS module type
 
@@ -117,7 +121,7 @@ const byte SWITCH[NUM_SWITCHES] = {9, 6};     // Module Switch takes input to 0V
 // module objects
 Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
 LEDControl moduleLED[NUM_LEDS];     //  LED as output
-
+byte switchState[NUM_SWITCHES];
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -192,6 +196,7 @@ void setup()
   {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
     moduleSwitch[i].interval(5);
+    switchState[i] = false;
   }
 
   // configure the module LEDs
@@ -223,12 +228,33 @@ void loop()
   }
 
   // test for switch input
-  for (int i = 0; i < NUM_SWITCHES; i++)
+  checkSwitch();
+
+  // bottom of loop()
+}
+
+void checkSwitch(void)
+{
+   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].update();
     if (moduleSwitch[i].changed())
     {
-#if DEBUG
+     byte nv;
+     int eeadress;
+     byte nvval;
+     byte opCode;
+
+     nv = i + 1;
+
+     eeadress = config.EE_NVS_START + (nv - 1);
+     nvval = config.readEEPROM(eeadress);
+     Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
+
+     switch (nvval)
+     {
+      case 0:
+      #if DEBUG
       Serial << F("> Button ") << i << F(" state change detected") << endl;
       if (moduleSwitch[i].fell()) {
         Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
@@ -237,12 +263,64 @@ void loop()
       }
 #endif
 
-      byte opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
+      opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
       sendEvent(opCode, (i + 1));
-    }
-  }
+      break;
 
-  // bottom of loop()
+      case 1:
+      #if DEBUG
+      Serial << F("> Button ") << i << F(" state change detected") << endl;
+      if (moduleSwitch[i].fell()) 
+      {
+        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+      }
+#endif
+
+      if (moduleSwitch[i].fell()) 
+      {
+        opCode = OPC_ACON;
+      }
+      sendEvent(opCode, (i + 1));
+      break;
+
+      case 2:
+      #if DEBUG
+      Serial << F("> Button ") << i << F(" state change detected") << endl;
+      if (moduleSwitch[i].rose()) 
+      {
+        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+      }
+#endif
+
+      if (moduleSwitch[i].rose())
+      {
+        opCode = OPC_ACOF;
+      }
+      sendEvent(opCode, (i + 1));
+      break;
+
+      case 3:
+
+      if (moduleSwitch[i].fell())
+      {
+        switchState[i] = !switchState[i];
+      }
+      #if DEBUG
+      Serial << F("> Button ") << i << F(" state change detected") << endl;
+      if (switchState[i]) {
+        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+      } else {
+        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+      }
+#endif
+
+      opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
+      sendEvent(opCode, (i + 1));
+
+      break;
+     }
+    }
+  } 
 }
 
 // Send an event routine according to Module Switch
@@ -318,10 +396,10 @@ void eventhandler(byte index, CANFrame *msg)
         ev = i + 1;
         eeaddress = config.EE_EVENTS_START + (index * config.EE_BYTES_PER_EVENT) + 4 + (ev - 1);
         evval = config.readEEPROM(eeaddress);
-		
-		if (evval > 0) {
-          moduleLED[i].off();
-		}
+
+        if (evval > 0) {
+           moduleLED[i].off();
+        }
       }
       break;
   }
