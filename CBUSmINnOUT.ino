@@ -318,8 +318,10 @@ void eventhandler(byte index, CANFrame *msg)
         ev = i + 1;
         eeaddress = config.EE_EVENTS_START + (index * config.EE_BYTES_PER_EVENT) + 4 + (ev - 1);
         evval = config.readEEPROM(eeaddress);
-
+		
+		if (evval > 0) {
           moduleLED[i].off();
+		}
       }
       break;
   }
