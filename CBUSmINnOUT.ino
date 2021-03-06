@@ -175,23 +175,16 @@ void setupCBUS()
   // configure and start CAN bus and CBUS message processing
   CBUS.setNumBuffers(2);         // more buffers = more memory used, fewer = less
   CBUS.setOscFreq(CAN_OSC_FREQ);   // select the crystal frequency of the CAN module
-  CBUS.setPins(10, 2);           // select pins for CAN bus CE and interrupt connections
+  CBUS.setPins(CAN_CS_PIN, CAN_INT_PIN);           // select pins for CAN bus CE and interrupt connections
   CBUS.begin();
 }
-
 //
-/// setup - runs once at power on
+///  setup Module - runs once at power on called from setup()
 //
 
-void setup()
+void setupModule()
 {
-  Serial.begin (115200);
-  Serial << endl << endl << F("> ** CBUS m in n out v1 ** ") << __FILE__ << endl;
-
-  setupCBUS();
-
-  ///////////////////////////////////////////////////////////////////////////
-  // configure the module switches, active low
+   // configure the module switches, active low
   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
@@ -202,8 +195,20 @@ void setup()
   // configure the module LEDs
   for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].setPin(LED[i]);
-  }
-  ///////////////////////////////////////////////////////////////////////////
+  } 
+}
+//
+/// setup - runs once at power on
+//
+
+void setup()
+{
+  Serial.begin (115200);
+  Serial << endl << endl << F("> ** CBUS m in n out v1 ** ") << __FILE__ << endl;
+
+  setupCBUS();
+  setupModule();
+
   // end of setup
 #if DEBUG
   Serial << F("> ready") << endl << endl;
@@ -228,12 +233,12 @@ void loop()
   }
 
   // test for switch input
-  checkSwitch();
+  processSwitches();
 
   // bottom of loop()
 }
 
-void checkSwitch(void)
+void processSwitches(void)
 {
    for (int i = 0; i < NUM_SWITCHES; i++)
   {
@@ -254,70 +259,76 @@ void checkSwitch(void)
      switch (nvval)
      {
       case 0:
-      #if DEBUG
-      Serial << F("> Button ") << i << F(" state change detected") << endl;
-      if (moduleSwitch[i].fell()) {
-        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-      } else {
-        Serial << F("> Button ") << i << F(" released, send 0x") << _HEX(OPC_ACOF) << endl;
-      }
+#if DEBUG
+        Serial << F("> Button ") << i << F(" state change detected") << endl;
+        if (moduleSwitch[i].fell()) {
+          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+        } else {
+          Serial << F("> Button ") << i << F(" released, send 0x") << _HEX(OPC_ACOF) << endl;
+        }
 #endif
 
-      opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
-      sendEvent(opCode, (i + 1));
-      break;
+        opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
+        sendEvent(opCode, (i + 1));
+        break;
 
       case 1:
-      #if DEBUG
-      Serial << F("> Button ") << i << F(" state change detected") << endl;
-      if (moduleSwitch[i].fell()) 
-      {
-        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-      }
+#if DEBUG
+        Serial << F("> Button ") << i << F(" state change detected") << endl;
+        if (moduleSwitch[i].fell()) 
+        {
+          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+        }
 #endif
 
-      if (moduleSwitch[i].fell()) 
-      {
-        opCode = OPC_ACON;
-      }
-      sendEvent(opCode, (i + 1));
-      break;
+        if (moduleSwitch[i].fell()) 
+        {
+          opCode = OPC_ACON;
+        }
+        sendEvent(opCode, (i + 1));
+        break;
 
       case 2:
-      #if DEBUG
-      Serial << F("> Button ") << i << F(" state change detected") << endl;
-      if (moduleSwitch[i].rose()) 
-      {
-        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-      }
+#if DEBUG
+        Serial << F("> Button ") << i << F(" state change detected") << endl;
+        if (moduleSwitch[i].rose()) 
+        {
+          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+        }
 #endif
 
-      if (moduleSwitch[i].rose())
-      {
-        opCode = OPC_ACOF;
-      }
-      sendEvent(opCode, (i + 1));
-      break;
+        if (moduleSwitch[i].rose())
+        {
+          opCode = OPC_ACOF;
+        }
+        sendEvent(opCode, (i + 1));
+        break;
 
       case 3:
 
-      if (moduleSwitch[i].fell())
-      {
-        switchState[i] = !switchState[i];
-      }
-      #if DEBUG
-      Serial << F("> Button ") << i << F(" state change detected") << endl;
-      if (switchState[i]) {
-        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-      } else {
-        Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-      }
+        if (moduleSwitch[i].fell())
+        {
+          switchState[i] = !switchState[i];
+        }
+#if DEBUG
+        Serial << F("> Button ") << i << F(" state change detected") << endl;
+        if (switchState[i]) {
+          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+        } else {
+          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+        }
 #endif
 
-      opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
-      sendEvent(opCode, (i + 1));
+        opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
+        sendEvent(opCode, (i + 1));
 
-      break;
+        break;
+		
+		default:
+#if DEBUG
+        Serial << F("> Invalid NV value.") << endl;
+#endif
+        break;
      }
     }
   } 
@@ -353,7 +364,6 @@ void eventhandler(byte index, CANFrame *msg)
 {
   byte opc;
   byte ev;
-  int eeaddress;
   byte evval;
 
 #if DEBUG
@@ -362,7 +372,7 @@ void eventhandler(byte index, CANFrame *msg)
 
   opc = msg->data[0];
 
-  switch (msg->data[0]) {
+  switch (opc) {
 
     case OPC_ACON:
     case OPC_ASON:
@@ -373,11 +383,15 @@ void eventhandler(byte index, CANFrame *msg)
         evval = config.getEventEVval(index, ev);
 
         switch (evval) {
-          case 1:
+		  case 1:
+		    moduleLED[i].on();
+			break;
+			
+          case 2:
             moduleLED[i].flash(500);
             break;
 
-          case 2:
+          case 3:
             moduleLED[i].flash(250);
             break;
 
@@ -423,16 +437,14 @@ void printConfig(void)
 void processSerialInput(void)
 {
   byte uev = 0;
-  char msgstr[32], dstr[32];
+  char msgstr[32];
 
   if (Serial.available()) {
-
     char c = Serial.read();
 
     switch (c) {
 
       case 'n':
-
         // node config
         printConfig();
 
@@ -443,7 +455,6 @@ void processSerialInput(void)
         break;
 
       case 'e':
-
         // EEPROM learned event data table
         Serial << F("> stored events ") << endl;
         Serial << F("  max events = ") << config.EE_MAX_EVENTS << F(" EVs per event = ") << config.EE_NUM_EVS << F(" bytes per event = ") << config.EE_BYTES_PER_EVENT << endl;
@@ -460,8 +471,8 @@ void processSerialInput(void)
         Serial << F("  Ev#  |  NNhi |  NNlo |  ENhi |  ENlo | ");
 
         for (byte j = 0; j < (config.EE_NUM_EVS); j++) {
-          sprintf(dstr, "EV%03d | ", j + 1);
-          Serial << dstr;
+          sprintf(msgstr, "EV%03d | ", j + 1);
+          Serial << msgstr;
         }
 
         Serial << F("Hash |") << endl;
@@ -470,19 +481,18 @@ void processSerialInput(void)
 
         // for each event data line
         for (byte j = 0; j < config.EE_MAX_EVENTS; j++) {
-
           if (config.getEvTableEntry(j) != 0) {
-            sprintf(dstr, "  %03d  | ", j);
-            Serial << dstr;
+            sprintf(msgstr, "  %03d  | ", j);
+            Serial << msgstr;
 
             // for each data byte of this event
             for (byte e = 0; e < (config.EE_NUM_EVS + 4); e++) {
-              sprintf(dstr, " 0x%02hx | ", config.readEEPROM(config.EE_EVENTS_START + (j * config.EE_BYTES_PER_EVENT) + e));
-              Serial << dstr;
+              sprintf(msgstr, " 0x%02hx | ", config.readEEPROM(config.EE_EVENTS_START + (j * config.EE_BYTES_PER_EVENT) + e));
+              Serial << msgstr;
             }
 
-            sprintf(dstr, "%4d |", config.getEvTableEntry(j));
-            Serial << dstr << endl;
+            sprintf(msgstr, "%4d |", config.getEvTableEntry(j));
+            Serial << msgstr << endl;
           }
         }
 
@@ -492,7 +502,6 @@ void processSerialInput(void)
 
       // NVs
       case 'v':
-
         // note NVs number from 1, not 0
         Serial << "> Node variables" << endl;
         Serial << F("   NV   Val") << endl;
@@ -510,7 +519,6 @@ void processSerialInput(void)
 
       // CAN bus status
       case 'c':
-
         CBUS.printStatus();
         break;
 
@@ -549,7 +557,6 @@ void processSerialInput(void)
           ResWaitTime = millis();
           ResetRq = true;
         }
-
         else {
           // This is a confirmed request
           // 2 sec timeout
@@ -557,7 +564,6 @@ void processSerialInput(void)
             Serial << F(">timeout expired, reset not performed") << endl;
             ResetRq = false;
           }
-
           else {
             //Request confirmed within timeout
             Serial << F(">RESETTING AND WIPING EEPROM") << endl;
