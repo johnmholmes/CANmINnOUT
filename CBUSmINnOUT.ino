@@ -1,23 +1,6 @@
 
-//
-///
-//
-/**************************************************************************************
-   Version 1a
-  Switch input function is defined by Node Values where NV1 is switch 1, NV2 is switch 2, etc.
-  Values are: ON/OFF switch = 0; ON only pushbutton = 1; OFF only pb = 2; ON/OFF toggle pb = 3.
-**************************************************************************************** 
-   Version 1
-  Allows all available Arduino pins to be allocated as either an input or output (but not both!).
-  Each output pin, here defined as LED, is assigned to an Event Variable that can be
-  used in any combination against a received event.
-  An input pin, here defined as switch, will generate an on or off event.
-  The event handler has been re-written so that action is determined by op Code.
-  Op codes supported are ACON, ASON, ACOF, ACON.
-  This sketch doe snot include the use of the CBUS switch or LEDs.  The CBUS and CBUSConfig
-  libraries must be able to accomodate this.
-***************************************************************************************
-*/
+// CBUSmINnOUT
+
 
 /*
   Copyright (C) 2021 Martin Da Costa
@@ -107,7 +90,7 @@ unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 // constants
 const byte VER_MAJ = 1;         // code major version
-const char VER_MIN = "a";       // code minor version
+const char VER_MIN = " ";       // code minor version
 const byte VER_BETA = 0;        // code beta sub-version
 const byte MODULE_ID = 99;      // CBUS module type
 
@@ -117,7 +100,7 @@ const unsigned long CAN_OSC_FREQ = 8000000;     // Oscillator frequency on the C
 #define NUM_SWITCHES 2          // How many switchs are there?
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
-const byte LED[NUM_LEDS] = {8, 7};            // LED pin connections through 1K8 resistor
+const byte LED[NUM_LEDS] = {8, 7};            // LED pin connections through typ. 1K8 resistor
 const byte SWITCH[NUM_SWITCHES] = {9, 6};     // Module Switch takes input to 0V.
 
 // module objects
@@ -145,7 +128,7 @@ void setupCBUS()
 {
   // set config layout parameters
   config.EE_NVS_START = 10;
-  config.EE_NUM_NVS = 10;
+  config.EE_NUM_NVS = NUM_SWITCHES;
   config.EE_EVENTS_START = 50;
   config.EE_MAX_EVENTS = 64;
   config.EE_NUM_EVS = NUM_LEDS;
