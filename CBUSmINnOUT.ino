@@ -5,7 +5,7 @@
 /**************************************************************************************
    Version 1a
   Switch input function is defined by Node Values where NV1 is switch 1, NV2 is switch 2, etc.
-  Values are: ON/OFF switch = 0; ON only pushbutton = 1; OFF only pb = 2; ON/OFF pb = 3.
+  Values are: ON/OFF switch = 0; ON only pushbutton = 1; OFF only pb = 2; ON/OFF toggle pb = 3.
 **************************************************************************************** 
    Version 1
   Allows all available Arduino pins to be allocated as either an input or output (but not both!).
@@ -61,6 +61,8 @@
 
       Streaming   -- C++ stream style output, v5, (http://arduiniana.org/libraries/streaming/)
       ACAN2515    -- library to support the MCP2515/25625 CAN controller IC
+      CBUSSwitch  -- library access required by CBUS and CBUS Config
+      CBUSLED     -- library access required by CBUS and CBUS Config
 */
 ///////////////////////////////////////////////////////////////////////////////////
 // Pin Use map UNO:
