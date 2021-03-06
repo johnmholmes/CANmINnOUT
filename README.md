@@ -22,17 +22,18 @@ compatibility.
 ## Library Dependancies
 
 The following third party libraries are required:
+
 ---------------|-----------------
-- Streaming.h  |*C++ stream style output, v5, (http://arduiniana.org/libraries/streaming/)*
-- Bounce2.h    |*Debounce of switch inputs*
-- ACAN2515.h   |*library to support the MCP2515/25625 CAN controller IC*
-- CBUS2515.h   |*CAN controller and CBUS class
-- CBUSconfig.h |*module configuration*
-- CBUS.h       |*CBUS Class*
-- cbusdefs.h   |*Definition of CBUS codes*
-- CBUSParams   |*Manage CBUS parameters*
-- CBUSSwitch   |*library compatibility*
-- CBUSLED      |*library compatibility*
+Streaming.h  |*C++ stream style output, v5, (http://arduiniana.org/libraries/streaming/)*
+Bounce2.h    |*Debounce of switch inputs*
+ACAN2515.h   |*library to support the MCP2515/25625 CAN controller IC*
+CBUS2515.h   |*CAN controller and CBUS class
+CBUSconfig.h |*module configuration*
+CBUS.h       |*CBUS Class*
+cbusdefs.h   |*Definition of CBUS codes*
+CBUSParams   |*Manage CBUS parameters*
+CBUSSwitch   |*library compatibility*
+CBUSLED      |*library compatibility*
 
 ### CBUS Op Codes
 
