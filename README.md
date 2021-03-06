@@ -31,9 +31,9 @@ CBUS2515.h   |*CAN controller and CBUS class
 CBUSconfig.h |*module configuration*
 CBUS.h       |*CBUS Class*
 cbusdefs.h   |*Definition of CBUS codes*
-CBUSParams   |*Manage CBUS parameters*
-CBUSSwitch   |*library compatibility*
-CBUSLED      |*library compatibility*
+CBUSParams.h   |*Manage CBUS parameters*
+CBUSSwitch.h   |*library compatibility*
+CBUSLED.h      |*library compatibility*
 
 ### CBUS Op Codes
 
