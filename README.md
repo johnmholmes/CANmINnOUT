@@ -165,7 +165,7 @@ This character will return the event hash table.
 #### 'y'
 This character will reset the CAN bus and CBUS message processing.
 
-####'*'
+####'\*'
 This character will reboot the module.
 
 #### 'm'
