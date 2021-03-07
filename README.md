@@ -63,6 +63,12 @@ The module can be configured to the users specific configuration in a section of
 starting at line c.86 with the title DEFINE MODULE. The following parameters can be changed 
 as necessary:
 ```
+#define DEBUG 0       // set to 0 for no serial debug
+```
+This define at circa line 73 allows various output reports to be made to the serial monitor 
+for use in debugging.  To enable these, change the vaue of DEBUG from 0 to 1.
+
+```
 // module name
 unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 ```
@@ -100,7 +106,7 @@ OP_CODE | HEX | Function
 ----------|---------|---------
  OPC_ACON | 0x90 | On event
  OPC_ACOF | 0x91 | Off event
- OPC_ACOF | 0x98 | Short event on
+ OPC_ASON | 0x98 | Short event on
  OPC_ASOF | 0x99 | Short event off
 
 ### Event Variables
@@ -125,7 +131,45 @@ NV Value | Function
  2 | Off only push button
  3 | On/Off toggle push button
  
+## Set Up and the Serial Monitor
 
+Without a CBUS switch, it is necessary to have another means of registering the module on 
+the CBUS and acquiring a node number.  This is accomplished by sending a single character to 
+the Arduino using the serial send facility in the serial monitor.
+
+#### 'r'
+This character will cause the module to renegotiate its CBUS status by requesting a node number.
+The FCU will respond as it would for any other unrecognised module.
+
+#### 'z'
+This character needs to be sent twice within 2 seconds so that its action is confirmed.
+This will reset the module and clear the EEPROM.  It should thus be used with care.
+
+Other information is available using the serial monitor using other commands:
+
+#### 'n'
+This character will return the node configuration.
+
+#### 'e'
+This character will return the learned event table in the EEPROM.
+
+#### 'v'
+This character will return the node variables.
+
+#### 'c'
+This character will return the CAN bus status.
+
+#### 'h'
+This character will return the event hash table.
+
+#### 'y'
+This character will reset the CAN bus and CBUS message processing.
+
+####'*'
+This character will reboot the module.
+
+#### 'm'
+This character will return the amount of free memory. 
  
  
  

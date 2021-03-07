@@ -70,7 +70,7 @@
 // Digital / Analog pin 5     Not Used
 //////////////////////////////////////////////////////////////////////////
 
-#define DEBUG 1       // set to 0 for no serial debug
+#define DEBUG 0       // set to 0 for no serial debug
 
 // 3rd party libraries
 #include <Streaming.h>
@@ -182,9 +182,7 @@ void setupModule()
     moduleLED[i].setPin(LED[i]);
   } 
 }
-//
-/// setup - runs once at power on
-//
+
 
 void setup()
 {
@@ -200,9 +198,6 @@ void setup()
 #endif
 }
 
-//
-/// loop - runs forever
-//
 
 void loop()
 {
@@ -220,8 +215,7 @@ void loop()
   // test for switch input
   processSwitches();
 
-  // bottom of loop()
-}
+ }
 
 void processSwitches(void)
 {
@@ -341,9 +335,7 @@ bool sendEvent(byte opCode, unsigned int eventNo)
 }
 
 //
-/// user-defined event processing function
 /// called from the CBUS library when a learned event is received
-/// it receives the event table index and the CAN frame
 //
 void eventhandler(byte index, CANFrame *msg)
 {
@@ -361,7 +353,6 @@ void eventhandler(byte index, CANFrame *msg)
 
     case OPC_ACON:
     case OPC_ASON:
-
       for (int i = 0; i < NUM_LEDS; i++) {
 
         ev = i + 1;
@@ -388,7 +379,6 @@ void eventhandler(byte index, CANFrame *msg)
 
     case OPC_ACOF:
     case OPC_ASOF:
-
       for (int i = 0; i < NUM_LEDS; i++) {
 
         ev = i + 1;
@@ -402,9 +392,7 @@ void eventhandler(byte index, CANFrame *msg)
   }
 }
 
-//
-/// print code version config details and copyright notice
-//
+
 void printConfig(void)
 {
   // code version
