@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\User\\Documents\\Arduino\\libraries\\**",
+                "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
+                "E:\\Program Files (x86)\\Arduino\\libraries\\**",
+                "C:\\Users\\User\\Documents\\Arduino\\libraries\\**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "E:\\Octave\\Octave-5.1.0.0\\mingw64\\bin\\gcc.exe",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}
