@@ -10,6 +10,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
+                "ARDUINO=10813",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
