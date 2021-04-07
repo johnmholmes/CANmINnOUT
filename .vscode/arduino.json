@@ -1,4 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "sketch": "CBUSmINnOUT.ino"
+    "sketch": "CBUSmINnOUT.ino",
+    "programmer": "arduino:avrisp"
 }
