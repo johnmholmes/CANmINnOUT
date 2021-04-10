@@ -14,13 +14,21 @@
                 "${workspaceFolder}/**"
             ],
             "forcedInclude": [],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                "E:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\avr\\include**",
+                "${workspaceRoot}"
+                ]
+            },
             "cStandard": "gnu11",
             "cppStandard": "gnu++14",
             "defines": [
                 "ARDUINO=10813",
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "USBCON"
             ]
         },
         {
