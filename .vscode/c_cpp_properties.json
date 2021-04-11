@@ -14,13 +14,6 @@
                 "${workspaceFolder}/**"
             ],
             "forcedInclude": [],
-            "browse": {
-                "limitSymbolsToIncludedHeaders": false,
-                "path": [
-                "E:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\avr\\include**",
-                "${workspaceRoot}"
-                ]
-            },
             "cStandard": "gnu11",
             "cppStandard": "gnu++14",
             "defines": [
@@ -36,7 +29,6 @@
             "compilerPath": "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7\\bin\\avr-g++",
             "compilerArgs": [
                 "-w",
-                "-mmcu=atmega328",
                 "-std=gnu++11",
                 "-fpermissive",
                 "-fno-exceptions",
