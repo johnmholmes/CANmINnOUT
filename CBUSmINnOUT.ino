@@ -90,7 +90,7 @@ unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 // constants
 const byte VER_MAJ = 1;         // code major version
-const char VER_MIN = ' ';       // code minor version use a single char
+const char VER_MIN = ' ';       // code minor version
 const byte VER_BETA = 0;        // code beta sub-version
 const byte MODULE_ID = 99;      // CBUS module type
 
