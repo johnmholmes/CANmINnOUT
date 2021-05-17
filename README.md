@@ -22,7 +22,7 @@ Notwithstanding the fact that they are not used, CBUSSwitch and CBUSLED librarie
 available for access by the CBUS and CBUSConfig libraries for reason of backwards library
 compatibility. 
 
-## Using CBUSmINnOUT
+## Using CANmINnOUT
 
 The MCP2515 interface requires five Arduino pins to be allocated. Three of these are fixed
 in the architecture of the Arduino processor. One pin must be connected to an interrupt
