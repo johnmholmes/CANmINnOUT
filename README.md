@@ -1,6 +1,6 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-# CBUSmINnOUT
+# CANmINnOUT
 
 An Arduino program to allocate all available pins as either switch input or LED output.
 
