@@ -1,6 +1,6 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-# CBUSmINnOUT
+# CANmINnOUT
 
 An Arduino program to allocate all available pins as either switch input or LED output.
 
@@ -22,7 +22,7 @@ Notwithstanding the fact that they are not used, CBUSSwitch and CBUSLED librarie
 available for access by the CBUS and CBUSConfig libraries for reason of backwards library
 compatibility. 
 
-## Using CBUSmINnOUT
+## Using CANmINnOUT
 
 The MCP2515 interface requires five Arduino pins to be allocated. Three of these are fixed
 in the architecture of the Arduino processor. One pin must be connected to an interrupt
