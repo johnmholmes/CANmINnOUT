@@ -69,7 +69,7 @@ as necessary:
 #define DEBUG 0       // set to 0 for no serial debug
 ```
 This define at circa line 73 allows various output reports to be made to the serial monitor 
-for use in debugging.  To enable these, change the vaue of DEBUG from 0 to 1.
+for use in debugging.  To enable these, change the value of DEBUG from 0 to 1.
 
 ```
 // module name
