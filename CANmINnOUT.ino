@@ -169,7 +169,7 @@ void setupCBUS()
 
 void setupModule()
 {
-   // configure the module switches, active low
+  // configure the module switches, active low
   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
@@ -180,7 +180,7 @@ void setupModule()
   // configure the module LEDs
   for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].setPin(LED[i]);
-  } 
+  }
 }
 
 
@@ -215,102 +215,103 @@ void loop()
   // test for switch input
   processSwitches();
 
- }
+}
 
 void processSwitches(void)
 {
-   for (int i = 0; i < NUM_SWITCHES; i++)
+  for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].update();
     if (moduleSwitch[i].changed())
     {
-     byte nv;
-     int eeadress;
-     byte nvval;
-     byte opCode;
+      byte nv;
+      int eeadress;
+      byte nvval;
+      byte opCode;
 
-     nv = i + 1;
+      nv = i + 1;
 
-     nvval = config.readNV(nv);
-	 
-     Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
+      nvval = config.readNV(nv);
 
-     switch (nvval)
-     {
-      case 0:
+      Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
+
+      switch (nvval)
+      {
+        case 0:
 #if DEBUG
-        Serial << F("> Button ") << i << F(" state change detected") << endl;
-        if (moduleSwitch[i].fell()) {
-          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-        } else {
-          Serial << F("> Button ") << i << F(" released, send 0x") << _HEX(OPC_ACOF) << endl;
-        }
+          Serial << F("> Button ") << i << F(" state change detected") << endl;
+          if (moduleSwitch[i].fell()) {
+            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+          } else {
+            Serial << F("> Button ") << i << F(" released, send 0x") << _HEX(OPC_ACOF) << endl;
+          }
 #endif
 
-        opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
-        sendEvent(opCode, (i + 1));
-        break;
+          opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
+          sendEvent(opCode, (i + 1));
+          break;
 
-      case 1:
+        case 1:
 #if DEBUG
-        Serial << F("> Button ") << i << F(" state change detected") << endl;
-        if (moduleSwitch[i].fell()) 
-        {
-          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-        }
+          Serial << F("> Button ") << i << F(" state change detected") << endl;
+          if (moduleSwitch[i].fell())
+          {
+            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+          }
 #endif
 
-        if (moduleSwitch[i].fell()) 
-        {
-          opCode = OPC_ACON;
-        }
-        sendEvent(opCode, (i + 1));
-        break;
+          if (moduleSwitch[i].fell())
+          {
+            opCode = OPC_ACON;
+            sendEvent(opCode, (i + 1));
+          }
+          break;
 
-      case 2:
+        case 2:
 #if DEBUG
-        Serial << F("> Button ") << i << F(" state change detected") << endl;
-        if (moduleSwitch[i].rose()) 
-        {
-          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-        }
+          Serial << F("> Button ") << i << F(" state change detected") << endl;
+          if (moduleSwitch[i].fell())
+          {
+            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+          }
 #endif
 
-        if (moduleSwitch[i].rose())
-        {
-          opCode = OPC_ACOF;
-        }
-        sendEvent(opCode, (i + 1));
-        break;
+          if (moduleSwitch[i].fell())
+          {
+            opCode = OPC_ACOF;
+            sendEvent(opCode, (i + 1));
+          }
+          break;
 
-      case 3:
+        case 3:
 
-        if (moduleSwitch[i].fell())
-        {
-          switchState[i] = !switchState[i];
-        }
+          if (moduleSwitch[i].fell())
+          {
+            switchState[i] = !switchState[i];
+
 #if DEBUG
-        Serial << F("> Button ") << i << F(" state change detected") << endl;
-        if (switchState[i]) {
-          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-        } else {
-          Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-        }
+            Serial << F("> Button ") << i << F(" state change detected") << endl;
+            if (switchState[i]) {
+              Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
+            } else {
+              Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
+            }
 #endif
 
-        opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
-        sendEvent(opCode, (i + 1));
+            opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
+            sendEvent(opCode, (i + 1));
+          }
 
-        break;
-		
-		default:
+          break;
+
+        default:
 #if DEBUG
-        Serial << F("> Invalid NV value.") << endl;
+          Serial << F("> Invalid NV value.") << endl;
 #endif
-        break;
-     }
+          break;
+      }
     }
-  } 
+  }
 }
 
 // Send an event routine according to Module Switch
@@ -367,10 +368,10 @@ void eventhandler(byte index, CANFrame *msg)
         evval = config.getEventEVval(index, ev);
 
         switch (evval) {
-		  case 1:
-		    moduleLED[i].on();
-			break;
-			
+          case 1:
+            moduleLED[i].on();
+            break;
+
           case 2:
             moduleLED[i].flash(500);
             break;
@@ -393,7 +394,7 @@ void eventhandler(byte index, CANFrame *msg)
         evval = config.getEventEVval(index, ev);
 
         if (evval > 0) {
-           moduleLED[i].off();
+          moduleLED[i].off();
         }
       }
       break;
