@@ -199,9 +199,7 @@ void setup()
   setupModule();
 
   // end of setup
-#if DEBUG
-  Serial << F("> ready") << endl << endl;
-#endif
+  DEBUG_PRINT(F("> ready"));
 }
 
 
@@ -298,13 +296,11 @@ bool sendEvent(byte opCode, unsigned int eventNo)
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
-#if DEBUG
   if (CBUS.sendMessage(&msg)) {
-    Serial << F("> sent CBUS message with Event Number ") << eventNo << endl;
+    DEBUG_PRINT(F("> sent CBUS message with Event Number ") << eventNo);
   } else {
-    Serial << F("> error sending CBUS message") << endl;
+    DEBUG_PRINT(F("> error sending CBUS message"));
   }
-#endif
 }
 
 //
@@ -314,18 +310,13 @@ void eventhandler(byte index, CANFrame *msg)
 {
   byte opc = msg->data[0];
 
-#if DEBUG
-  Serial << F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]) << endl;
-  byte len = msg->len;
-  Serial << F("> event handler: length = ") << len << endl;
-#endif
+  DEBUG_PRINT(F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]));
+  DEBUG_PRINT(F("> event handler: length = ") << msg->len);
 
   unsigned int node_number = (msg->data[1] << 8 ) + msg->data[2];
   unsigned int event_number = (msg->data[3] << 8 ) + msg->data[4];
-#if DEBUG
-  Serial << F("> NN = ") << node_number << F(", EN = ") << event_number << endl;
-  Serial << F("> op_code = ") << opc << endl;
-#endif
+  DEBUG_PRINT(F("> NN = ") << node_number << F(", EN = ") << event_number);
+  DEBUG_PRINT(F("> op_code = ") << opc);
 
   switch (opc) {
 
