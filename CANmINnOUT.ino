@@ -321,13 +321,15 @@ bool sendEvent(byte opCode, unsigned int eventNo)
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
+  bool res = CBUS.sendMessage(&msg);
 #if DEBUG
-  if (CBUS.sendMessage(&msg)) {
+  if (res) {
     Serial << F("> sent CBUS message with Event Number ") << eventNo << endl;
   } else {
     Serial << F("> error sending CBUS message") << endl;
   }
 #endif
+  return res;
 }
 
 //
