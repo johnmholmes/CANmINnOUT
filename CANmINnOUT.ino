@@ -72,6 +72,12 @@
 
 #define DEBUG 0       // set to 0 for no serial debug
 
+#if DEBUG
+#define DEBUG_PRINT(S) Serial << S << endl
+#else
+#define DEBUG_PRINT(S)
+#endif
+
 // 3rd party libraries
 #include <Streaming.h>
 #include <Bounce2.h>
@@ -193,9 +199,7 @@ void setup()
   setupModule();
 
   // end of setup
-#if DEBUG
-  Serial << F("> ready") << endl << endl;
-#endif
+  DEBUG_PRINT(F("> ready"));
 }
 
 
@@ -228,52 +232,33 @@ void processSwitches(void)
       byte nvval = config.readNV(nv);
       byte opCode;
 
+      DEBUG_PRINT(F("> Button ") << i << F(" state change detected"));
       Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
 
       switch (nvval)
       {
         case 0:
-#if DEBUG
-          Serial << F("> Button ") << i << F(" state change detected") << endl;
-          if (moduleSwitch[i].fell()) {
-            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-          } else {
-            Serial << F("> Button ") << i << F(" released, send 0x") << _HEX(OPC_ACOF) << endl;
-          }
-#endif
-
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
+          DEBUG_PRINT(F("> Button ") << i
+              << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
           sendEvent(opCode, (i + 1));
           break;
 
         case 1:
-#if DEBUG
-          Serial << F("> Button ") << i << F(" state change detected") << endl;
-          if (moduleSwitch[i].fell())
-          {
-            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-          }
-#endif
-
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACON;
+            DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON));
             sendEvent(opCode, (i + 1));
           }
           break;
 
         case 2:
-#if DEBUG
-          Serial << F("> Button ") << i << F(" state change detected") << endl;
-          if (moduleSwitch[i].fell())
-          {
-            Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-          }
-#endif
 
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACOF;
+            DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF));
             sendEvent(opCode, (i + 1));
           }
           break;
@@ -283,26 +268,16 @@ void processSwitches(void)
           if (moduleSwitch[i].fell())
           {
             switchState[i] = !switchState[i];
-
-#if DEBUG
-            Serial << F("> Button ") << i << F(" state change detected") << endl;
-            if (switchState[i]) {
-              Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON) << endl;
-            } else {
-              Serial << F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF) << endl;
-            }
-#endif
-
             opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
+            DEBUG_PRINT(F("> Button ") << i
+                << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
             sendEvent(opCode, (i + 1));
           }
 
           break;
 
         default:
-#if DEBUG
-          Serial << F("> Invalid NV value.") << endl;
-#endif
+          DEBUG_PRINT(F("> Invalid NV value."));
           break;
       }
     }
@@ -321,13 +296,11 @@ bool sendEvent(byte opCode, unsigned int eventNo)
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
-#if DEBUG
   if (CBUS.sendMessage(&msg)) {
-    Serial << F("> sent CBUS message with Event Number ") << eventNo << endl;
+    DEBUG_PRINT(F("> sent CBUS message with Event Number ") << eventNo);
   } else {
-    Serial << F("> error sending CBUS message") << endl;
+    DEBUG_PRINT(F("> error sending CBUS message"));
   }
-#endif
 }
 
 //
@@ -337,18 +310,13 @@ void eventhandler(byte index, CANFrame *msg)
 {
   byte opc = msg->data[0];
 
-#if DEBUG
-  Serial << F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]) << endl;
-  byte len = msg->len;
-  Serial << F("> event handler: length = ") << len << endl;
-#endif
+  DEBUG_PRINT(F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]));
+  DEBUG_PRINT(F("> event handler: length = ") << msg->len);
 
   unsigned int node_number = (msg->data[1] << 8 ) + msg->data[2];
   unsigned int event_number = (msg->data[3] << 8 ) + msg->data[4];
-#if DEBUG
-  Serial << F("> NN = ") << node_number << F(", EN = ") << event_number << endl;
-  Serial << F("> op_code = ") << opc << endl;
-#endif
+  DEBUG_PRINT(F("> NN = ") << node_number << F(", EN = ") << event_number);
+  DEBUG_PRINT(F("> op_code = ") << opc);
 
   switch (opc) {
 
