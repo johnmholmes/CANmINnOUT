@@ -224,14 +224,9 @@ void processSwitches(void)
     moduleSwitch[i].update();
     if (moduleSwitch[i].changed())
     {
-      byte nv;
-      int eeadress;
-      byte nvval;
+      byte nv = i + 1;
+      byte nvval = config.readNV(nv);
       byte opCode;
-
-      nv = i + 1;
-
-      nvval = config.readNV(nv);
 
       Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
 
@@ -340,9 +335,7 @@ bool sendEvent(byte opCode, unsigned int eventNo)
 //
 void eventhandler(byte index, CANFrame *msg)
 {
-  byte opc;
-  byte ev;
-  byte evval;
+  byte opc = msg->data[0];
 
 #if DEBUG
   Serial << F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]) << endl;
@@ -350,7 +343,6 @@ void eventhandler(byte index, CANFrame *msg)
   Serial << F("> event handler: length = ") << len << endl;
 #endif
 
-  opc = msg->data[0];
   unsigned int node_number = (msg->data[1] << 8 ) + msg->data[2];
   unsigned int event_number = (msg->data[3] << 8 ) + msg->data[4];
 #if DEBUG
@@ -362,12 +354,13 @@ void eventhandler(byte index, CANFrame *msg)
 
     case OPC_ACON:
     case OPC_ASON:
-      for (int i = 0; i < NUM_LEDS; i++) {
+      for (int i = 0; i < NUM_LEDS; i++)
+      {
+        byte ev = i + 1;
+        byte evval = config.getEventEVval(index, ev);
 
-        ev = i + 1;
-        evval = config.getEventEVval(index, ev);
-
-        switch (evval) {
+        switch (evval)
+        {
           case 1:
             moduleLED[i].on();
             break;
@@ -388,10 +381,10 @@ void eventhandler(byte index, CANFrame *msg)
 
     case OPC_ACOF:
     case OPC_ASOF:
-      for (int i = 0; i < NUM_LEDS; i++) {
-
-        ev = i + 1;
-        evval = config.getEventEVval(index, ev);
+      for (int i = 0; i < NUM_LEDS; i++)
+      {
+        byte ev = i + 1;
+        byte evval = config.getEventEVval(index, ev);
 
         if (evval > 0) {
           moduleLED[i].off();
