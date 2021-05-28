@@ -78,7 +78,7 @@
 #define DEBUG_PRINT(S)
 #endif
 
-// 3rd party librarie
+// 3rd party libraries
 #include <Streaming.h>
 #include <Bounce2.h>
 
