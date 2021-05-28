@@ -296,11 +296,13 @@ bool sendEvent(byte opCode, unsigned int eventNo)
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
-  if (CBUS.sendMessage(&msg)) {
+  bool res = CBUS.sendMessage(&msg);
+  if (res) {
     DEBUG_PRINT(F("> sent CBUS message with Event Number ") << eventNo);
   } else {
     DEBUG_PRINT(F("> error sending CBUS message"));
   }
+  return res;
 }
 
 //
