@@ -223,7 +223,7 @@ void loop()
 
 void processSwitches(void)
 {
-  bool is_success = true;
+  bool isSuccess = true;
   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].update();
@@ -242,7 +242,7 @@ void processSwitches(void)
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
               << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-          is_success = sendEvent(opCode, (i + 1));
+          isSuccess = sendEvent(opCode, (i + 1));
           break;
 
         case 1:
@@ -250,7 +250,7 @@ void processSwitches(void)
           {
             opCode = OPC_ACON;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON));
-            is_success = sendEvent(opCode, (i + 1));
+            isSuccess = sendEvent(opCode, (i + 1));
           }
           break;
 
@@ -260,7 +260,7 @@ void processSwitches(void)
           {
             opCode = OPC_ACOF;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF));
-            is_success = sendEvent(opCode, (i + 1));
+            isSuccess = sendEvent(opCode, (i + 1));
           }
           break;
 
@@ -272,7 +272,7 @@ void processSwitches(void)
             opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
             DEBUG_PRINT(F("> Button ") << i
                 << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-            is_success = sendEvent(opCode, (i + 1));
+            isSuccess = sendEvent(opCode, (i + 1));
           }
 
           break;
@@ -283,7 +283,7 @@ void processSwitches(void)
       }
     }
   }
-  if (!is_success) 
+  if (!isSuccess) 
   {
     DEBUG_PRINT(F("> One of the send message events failed"));
   }
