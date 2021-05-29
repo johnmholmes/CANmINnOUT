@@ -223,6 +223,7 @@ void loop()
 
 void processSwitches(void)
 {
+  bool is_success = true;
   for (int i = 0; i < NUM_SWITCHES; i++)
   {
     moduleSwitch[i].update();
@@ -241,7 +242,7 @@ void processSwitches(void)
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
               << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-          sendEvent(opCode, (i + 1));
+          is_success = sendEvent(opCode, (i + 1));
           break;
 
         case 1:
@@ -249,7 +250,7 @@ void processSwitches(void)
           {
             opCode = OPC_ACON;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON));
-            sendEvent(opCode, (i + 1));
+            is_success = sendEvent(opCode, (i + 1));
           }
           break;
 
@@ -259,7 +260,7 @@ void processSwitches(void)
           {
             opCode = OPC_ACOF;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF));
-            sendEvent(opCode, (i + 1));
+            is_success = sendEvent(opCode, (i + 1));
           }
           break;
 
@@ -271,7 +272,7 @@ void processSwitches(void)
             opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
             DEBUG_PRINT(F("> Button ") << i
                 << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-            sendEvent(opCode, (i + 1));
+            is_success = sendEvent(opCode, (i + 1));
           }
 
           break;
@@ -281,6 +282,10 @@ void processSwitches(void)
           break;
       }
     }
+  }
+  if (!is_success) 
+  {
+    DEBUG_PRINT(F("> One of the send message events failed"));
   }
 }
 
@@ -296,13 +301,13 @@ bool sendEvent(byte opCode, unsigned int eventNo)
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
-  bool res = CBUS.sendMessage(&msg);
-  if (res) {
+  bool success = CBUS.sendMessage(&msg);
+  if (success) {
     DEBUG_PRINT(F("> sent CBUS message with Event Number ") << eventNo);
   } else {
     DEBUG_PRINT(F("> error sending CBUS message"));
   }
-  return res;
+  return success;
 }
 
 //
@@ -372,7 +377,10 @@ void printConfig(void)
   Serial << F("> compiled on ") << __DATE__ << F(" at ") << __TIME__ << F(", compiler ver = ") << __cplusplus << endl;
 
   // copyright
-  Serial << F("> © Martin Da Costa (MERG M6223) 2020") << endl;
+  Serial << F("> © Martin Da Costa (MERG M6223) 2021") << endl;
+  Serial << F("> © Duncan Greenwood (MERG M5767) 2021") << endl;
+  Serial << F("> © John Fletcher (MERG M6777) 2021") << endl;
+  Serial << F("> © Sven Rosvall (MERG M3777) 2021") << endl;
 }
 
 //
