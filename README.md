@@ -2,7 +2,8 @@
 
 # CANmINnOUT
 
-An Arduino program to allocate all available pins as either switch input or LED output.
+An Arduino program to allocate all available device pins as either switch input or LED output.
+To this end, the number of input pins is regarded as 'm' and the number of output pins as 'n'.
 
 Key Features:
 - MERG CBUS interface
@@ -26,7 +27,7 @@ compatibility.
 
 The MCP2515 interface requires five Arduino pins to be allocated. Three of these are fixed
 in the architecture of the Arduino processor. One pin must be connected to an interrupt
-capable Arduino pin. Thus, the total number of pins available for input or output is:
+capable Arduino pin. The Chip Select pin can be freely defined. Thus, the total number of pins available for input or output is:
 - UNO  13 pins
 - NANO 15 pins
 - MEGA 63 pins
@@ -44,7 +45,7 @@ Pins defined as outputs are active high.  They will source current to (say) an L
 important that a suitable current limiting resistor is fitted between the pin and the LED 
 anode.  The LED cathode should be connected to ground.
 
-### Library Dependancies
+### Library Dependencies
 
 The following third party libraries are required:
 Library | Purpose
@@ -76,7 +77,7 @@ for use in debugging.  To enable these, change the value of DEBUG from 0 to 1.
 unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 ```
 This can be adjusted as required to reflect the module configuration.  For example, 'm' & 'n' 
-could be change to any number between 0 & 9. However, only one character is allowed between 
+could be changed to any number between 0 & 9. However, only one character is allowed between 
 each pair of ' ' and the total number of characters must not exceed seven.
 
 ```
@@ -114,7 +115,7 @@ OP_CODE | HEX | Function
 
 ### Event Variables
 
-The number of Event Variables is equal to the number of LEDs.
+The number of Event Variables (EV) is equal to the number of LEDs.
 The following EV values are defined to control the LEDs:
  EV Value | Function
 --------|-----------
@@ -125,7 +126,7 @@ The following EV values are defined to control the LEDs:
  
 ### Node Variables
 
-The number of Node Variables is equal to the number of switches.
+The number of Node Variables (NV) is equal to the number of switches.
 The following NV values define input switch function:
 NV Value | Function
 --------|--------
@@ -138,7 +139,7 @@ NV Value | Function
 
 Without a CBUS switch, it is necessary to have another means of registering the module on 
 the CBUS and acquiring a node number.  This is accomplished by sending a single character to 
-the Arduino using the serial send facility in the serial monitor.
+the Arduino using the serial send facility in the serial monitor of the Arduino IDE (or similar).
 
 #### 'r'
 This character will cause the module to renegotiate its CBUS status by requesting a node number.
