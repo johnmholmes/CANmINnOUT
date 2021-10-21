@@ -27,12 +27,16 @@ compatibility.
 
 The MCP2515 interface requires five Arduino pins to be allocated. Three of these are fixed
 in the architecture of the Arduino processor. One pin must be connected to an interrupt
-capable Arduino pin. The Chip Select pin can be freely defined. Thus, the total number of pins available for input or output is:
+capable Arduino pin. The Chip Select pin can be freely defined. Thus, the total number of
+pins available for input or output is:
 - UNO  13 pins
-- NANO 15 pins
+- NANO 15 pins of which only 13 are usable in this application.
 - MEGA 63 pins
 
 The total of input and output pins (m + n) cannot exceed these numbers.
+
+The Nano also has inputs A6 & A7.  However, these are anaolue inputs only and have
+no digital input or output capability. Thy are thus of no interest in this application.
 
 **It is the users responsibility that the total current that the Arduino is asked to supply 
 **stays within the capacity of the on board regulator.  Failure to do this will result in 
