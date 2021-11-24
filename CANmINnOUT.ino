@@ -239,6 +239,7 @@ void processSwitches(void)
       switch (nvval)
       {
         case 0:
+          // ON and OFF
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
               << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
@@ -246,6 +247,7 @@ void processSwitches(void)
           break;
 
         case 1:
+          // Only ON
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACON;
@@ -255,7 +257,7 @@ void processSwitches(void)
           break;
 
         case 2:
-
+          // Only OFF
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACOF;
@@ -265,7 +267,7 @@ void processSwitches(void)
           break;
 
         case 3:
-
+          // Toggle button
           if (moduleSwitch[i].fell())
           {
             switchState[i] = !switchState[i];
@@ -348,6 +350,10 @@ void eventhandler(byte index, CANFrame *msg)
             moduleLED[i].flash(250);
             break;
 
+          case 99:
+            sendStartOfDayEvents();
+            break;
+
           default:
             break;
         }
@@ -369,6 +375,43 @@ void eventhandler(byte index, CANFrame *msg)
   }
 }
 
+void sendStartOfDayEvents()
+{
+  bool isSuccess = true;
+  DEBUG_PRINT(F("> Requested StartOfDay status events"));
+  for (int i = 0; i < NUM_SWITCHES; i++)
+  {
+    byte nv = i + 1;
+    byte nvval = config.readNV(nv);
+    byte opCode;
+
+    switch (nvval)
+    {
+      case 0:
+        // ON and OFF
+        opCode = (moduleSwitch[i].read() == LOW ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> Button ") << i
+            << " is " << (moduleSwitch[i].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess &= sendEvent(opCode, (i + 1));
+        break;
+
+      case 3:
+        // Toggle button - use saved state.
+        opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> Button ") << i
+            << " is " << (moduleSwitch[i].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess &= sendEvent(opCode, (i + 1));
+        break;
+    }
+
+    delay(20); // Reduce impact of SOD storm.
+    // TODO: Should use a timer and send these status events from the loop() function.
+  }
+  if (!isSuccess) 
+  {
+    DEBUG_PRINT(F("> One of the send message events failed"));
+  }
+}
 
 void printConfig(void)
 {
