@@ -114,6 +114,9 @@ Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
 LEDControl moduleLED[NUM_LEDS];     //  LED as output
 byte switchState[NUM_SWITCHES];
 
+const int GLOBAL_EVS = 1;        // Number event variables for the module
+    // EV1 - StartOfDay
+
 //////////////////////////////////////////////////////////////////////////
 
 //CBUS pins
@@ -137,7 +140,7 @@ void setupCBUS()
   config.EE_NUM_NVS = NUM_SWITCHES;
   config.EE_EVENTS_START = 50;
   config.EE_MAX_EVENTS = 64;
-  config.EE_NUM_EVS = NUM_LEDS;
+  config.EE_NUM_EVS = GLOBAL_EVS + NUM_LEDS;
   config.EE_BYTES_PER_EVENT = (config.EE_NUM_EVS + 4);
 
   // initialise and load configuration
@@ -327,13 +330,13 @@ void eventhandler(byte index, CANFrame *msg)
   DEBUG_PRINT(F("> NN = ") << node_number << F(", EN = ") << event_number);
   DEBUG_PRINT(F("> op_code = ") << opc);
 
-  switch (opc) {
-
+  switch (opc)
+  {
     case OPC_ACON:
     case OPC_ASON:
       for (int i = 0; i < NUM_LEDS; i++)
       {
-        byte ev = i + 1;
+        byte ev = i + 1 + GLOBAL_EVS;
         byte evval = config.getEventEVval(index, ev);
 
         switch (evval)
@@ -350,12 +353,15 @@ void eventhandler(byte index, CANFrame *msg)
             moduleLED[i].flash(250);
             break;
 
-          case 99:
-            sendStartOfDayEvents();
-            break;
-
           default:
             break;
+        }
+      }
+      {
+        byte sodVal = config.getEventEVval(index, 1);
+        if (sodVal == 1)
+        {
+          sendStartOfDayEvents();
         }
       }
       break;
@@ -364,7 +370,7 @@ void eventhandler(byte index, CANFrame *msg)
     case OPC_ASOF:
       for (int i = 0; i < NUM_LEDS; i++)
       {
-        byte ev = i + 1;
+        byte ev = i + 1 + GLOBAL_EVS;
         byte evval = config.getEventEVval(index, ev);
 
         if (evval > 0) {
