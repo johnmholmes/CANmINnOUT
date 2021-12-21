@@ -102,7 +102,7 @@ const byte MODULE_ID = 99;      // CBUS module type
 
 const unsigned long CAN_OSC_FREQ = 8000000;     // Oscillator frequency on the CAN2515 board
 
-const int SOD_INTERVAL = 20;    // milliseconds between SOD events.
+const unsigned int SOD_INTERVAL = 20;    // milliseconds between SOD events.
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
 const byte LED[] = {8, 7};      // LED pin connections through typ. 1K8 resistor
@@ -121,7 +121,7 @@ const int GLOBAL_EVS = 1;        // Number event variables for the module
 
 // Variables for SOD state reporting event dispatching.
 int nextSodIndex = -1;
-int nextSodTime = 0;
+unsigned int nextSodTime = 0;
 
 //////////////////////////////////////////////////////////////////////////
 
