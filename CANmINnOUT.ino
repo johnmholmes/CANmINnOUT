@@ -102,6 +102,8 @@ const byte MODULE_ID = 99;      // CBUS module type
 
 const unsigned long CAN_OSC_FREQ = 8000000;     // Oscillator frequency on the CAN2515 board
 
+const int SOD_INTERVAL = 20;    // milliseconds between SOD events.
+
 //Module pins available for use are Pins 3 - 9 and A0 - A5
 const byte LED[] = {8, 7};      // LED pin connections through typ. 1K8 resistor
 const byte SWITCH[] = {9, 6};   // Module Switch takes input to 0V.
@@ -116,6 +118,10 @@ byte switchState[NUM_SWITCHES];
 
 const int GLOBAL_EVS = 1;        // Number event variables for the module
     // EV1 - StartOfDay
+
+// Variables for SOD state reporting event dispatching.
+int nextSodIndex = -1;
+int nextSodTime = 0;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -222,6 +228,7 @@ void loop()
   // test for switch input
   processSwitches();
 
+  processStartOfDay();
 }
 
 void processSwitches(void)
@@ -361,7 +368,11 @@ void eventhandler(byte index, CANFrame *msg)
         byte sodVal = config.getEventEVval(index, 1);
         if (sodVal == 1)
         {
-          sendStartOfDayEvents();
+          if (nextSodIndex < 0) // Check if a SOD is already in progress.
+          {
+            nextSodIndex = 0;
+            nextSodTime = millis() + SOD_INTERVAL;
+          }
         }
       }
       break;
@@ -381,41 +392,50 @@ void eventhandler(byte index, CANFrame *msg)
   }
 }
 
-void sendStartOfDayEvents()
+void processStartOfDay()
 {
-  bool isSuccess = true;
-  DEBUG_PRINT(F("> Requested StartOfDay status events"));
-  for (int i = 0; i < NUM_SWITCHES; i++)
+  if (nextSodIndex >= 0
+      && nextSodTime < millis())
   {
-    byte nv = i + 1;
+    byte nv =  nextSodIndex + 1;
     byte nvval = config.readNV(nv);
     byte opCode;
+    bool isSuccess = true;
 
     switch (nvval)
     {
       case 0:
         // ON and OFF
-        opCode = (moduleSwitch[i].read() == LOW ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> Button ") << i
-            << " is " << (moduleSwitch[i].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-        isSuccess &= sendEvent(opCode, (i + 1));
+        opCode = (moduleSwitch[nextSodIndex].read() == LOW ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodIndex
+            << " is " << (moduleSwitch[nextSodIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodIndex + 1));
         break;
 
       case 3:
         // Toggle button - use saved state.
-        opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> Button ") << i
-            << " is " << (moduleSwitch[i].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-        isSuccess &= sendEvent(opCode, (i + 1));
+        opCode = (switchState[nextSodIndex] ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodIndex
+            << " is " << (moduleSwitch[nextSodIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodIndex + 1));
         break;
     }
+    if (!isSuccess) 
+    {
+      DEBUG_PRINT(F("> One of the send message events failed"));
+    }
+    
 
-    delay(20); // Reduce impact of SOD storm.
-    // TODO: Should use a timer and send these status events from the loop() function.
-  }
-  if (!isSuccess) 
-  {
-    DEBUG_PRINT(F("> One of the send message events failed"));
+    if (++nextSodIndex >= NUM_SWITCHES)
+    {
+      DEBUG_PRINT(F("> Done  all SOD events."));
+      nextSodIndex = -1;
+    }
+    else
+    {
+      DEBUG_PRINT(F("> Prepare for next SOD event."));
+      nextSodTime = millis() + SOD_INTERVAL;
+    }
   }
 }
 
