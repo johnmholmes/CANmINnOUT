@@ -149,6 +149,15 @@ NV Value | Function
  2 | Off only push button
  3 | On/Off toggle push button
  
+### Start Of Day
+
+The module will respond to a Start Of Day event if that event has been taught and EV1 is set to 1.
+Upon receipt of this SoD message, the unit will report the status of each switch that has an NV value
+of 0 or 3. Clearly, "on" only and "off" only switch NV values are of no relevance to SoD.
+
+There is no restriction on setting other EVs to cause LEDs to indicate receipt of an SoD event in
+addition to setting EV1.
+ 
 ## Set Up and the Serial Monitor
 
 Without a CBUS switch, it is necessary to have another means of registering the module on 
