@@ -120,8 +120,10 @@ const int GLOBAL_EVS = 1;        // Number event variables for the module
     // EV1 - StartOfDay
 
 // Variables for SOD state reporting event dispatching.
-int nextSodIndex = -1;
-unsigned int nextSodTime = 0;
+// They indicate which switch (index of) to report next and at what time to send the next event.
+// An index of -1 indicates that there is no SOD reporting going on.
+int nextSodSwitchIndex = -1;
+unsigned int nextSodMessageTime = 0;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -196,6 +198,8 @@ void setupModule()
   for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].setPin(LED[i]);
   }
+
+  Serial << "> Module has " << NUM_LEDS << " LEDs and " << NUM_SWITCHES << " switches." << endl;
 }
 
 
@@ -368,10 +372,10 @@ void eventhandler(byte index, CANFrame *msg)
         byte sodVal = config.getEventEVval(index, 1);
         if (sodVal == 1)
         {
-          if (nextSodIndex < 0) // Check if a SOD is already in progress.
+          if (nextSodSwitchIndex < 0) // Check if a SOD is already in progress.
           {
-            nextSodIndex = 0;
-            nextSodTime = millis() + SOD_INTERVAL;
+            nextSodSwitchIndex = 0;
+            nextSodMessageTime = millis() + SOD_INTERVAL;
           }
         }
       }
@@ -394,10 +398,10 @@ void eventhandler(byte index, CANFrame *msg)
 
 void processStartOfDay()
 {
-  if (nextSodIndex >= 0
-      && nextSodTime < millis())
+  if (nextSodSwitchIndex >= 0
+      && nextSodMessageTime < millis())
   {
-    byte nv =  nextSodIndex + 1;
+    byte nv =  nextSodSwitchIndex + 1;
     byte nvval = config.readNV(nv);
     byte opCode;
     bool isSuccess = true;
@@ -406,18 +410,18 @@ void processStartOfDay()
     {
       case 0:
         // ON and OFF
-        opCode = (moduleSwitch[nextSodIndex].read() == LOW ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodIndex
-            << " is " << (moduleSwitch[nextSodIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-        isSuccess = sendEvent(opCode, (nextSodIndex + 1));
+        opCode = (moduleSwitch[nextSodSwitchIndex].read() == LOW ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodSwitchIndex
+            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
         break;
 
       case 3:
         // Toggle button - use saved state.
-        opCode = (switchState[nextSodIndex] ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodIndex
-            << " is " << (moduleSwitch[nextSodIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
-        isSuccess = sendEvent(opCode, (nextSodIndex + 1));
+        opCode = (switchState[nextSodSwitchIndex] ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodSwitchIndex
+            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
         break;
     }
     if (!isSuccess) 
@@ -426,15 +430,15 @@ void processStartOfDay()
     }
     
 
-    if (++nextSodIndex >= NUM_SWITCHES)
+    if (++nextSodSwitchIndex >= NUM_SWITCHES)
     {
       DEBUG_PRINT(F("> Done  all SOD events."));
-      nextSodIndex = -1;
+      nextSodSwitchIndex = -1;
     }
     else
     {
       DEBUG_PRINT(F("> Prepare for next SOD event."));
-      nextSodTime = millis() + SOD_INTERVAL;
+      nextSodMessageTime = millis() + SOD_INTERVAL;
     }
   }
 }
