@@ -102,17 +102,28 @@ const byte MODULE_ID = 99;      // CBUS module type
 
 const unsigned long CAN_OSC_FREQ = 8000000;     // Oscillator frequency on the CAN2515 board
 
-#define NUM_LEDS 2              // How many LEDs are there?
-#define NUM_SWITCHES 2          // How many switchs are there?
+const unsigned int SOD_INTERVAL = 20;    // milliseconds between SOD events.
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
-const byte LED[NUM_LEDS] = {8, 7};            // LED pin connections through typ. 1K8 resistor
-const byte SWITCH[NUM_SWITCHES] = {9, 6};     // Module Switch takes input to 0V.
+const byte LED[] = {8, 7};      // LED pin connections through typ. 1K8 resistor
+const byte SWITCH[] = {9, 6};   // Module Switch takes input to 0V.
+
+const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
+const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
 
 // module objects
 Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
 LEDControl moduleLED[NUM_LEDS];     //  LED as output
 byte switchState[NUM_SWITCHES];
+
+const int GLOBAL_EVS = 1;        // Number event variables for the module
+    // EV1 - StartOfDay
+
+// Variables for SOD state reporting event dispatching.
+// They indicate which switch (index of) to report next and at what time to send the next event.
+// An index of -1 indicates that there is no SOD reporting going on.
+int nextSodSwitchIndex = -1;
+unsigned int nextSodMessageTime = 0;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -137,7 +148,7 @@ void setupCBUS()
   config.EE_NUM_NVS = NUM_SWITCHES;
   config.EE_EVENTS_START = 50;
   config.EE_MAX_EVENTS = 64;
-  config.EE_NUM_EVS = NUM_LEDS;
+  config.EE_NUM_EVS = GLOBAL_EVS + NUM_LEDS;
   config.EE_BYTES_PER_EVENT = (config.EE_NUM_EVS + 4);
 
   // initialise and load configuration
@@ -187,6 +198,8 @@ void setupModule()
   for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].setPin(LED[i]);
   }
+
+  Serial << "> Module has " << NUM_LEDS << " LEDs and " << NUM_SWITCHES << " switches." << endl;
 }
 
 
@@ -219,6 +232,7 @@ void loop()
   // test for switch input
   processSwitches();
 
+  processStartOfDay();
 }
 
 void processSwitches(void)
@@ -239,6 +253,7 @@ void processSwitches(void)
       switch (nvval)
       {
         case 0:
+          // ON and OFF
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
               << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
@@ -246,6 +261,7 @@ void processSwitches(void)
           break;
 
         case 1:
+          // Only ON
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACON;
@@ -255,7 +271,7 @@ void processSwitches(void)
           break;
 
         case 2:
-
+          // Only OFF
           if (moduleSwitch[i].fell())
           {
             opCode = OPC_ACOF;
@@ -265,7 +281,7 @@ void processSwitches(void)
           break;
 
         case 3:
-
+          // Toggle button
           if (moduleSwitch[i].fell())
           {
             switchState[i] = !switchState[i];
@@ -325,13 +341,13 @@ void eventhandler(byte index, CANFrame *msg)
   DEBUG_PRINT(F("> NN = ") << node_number << F(", EN = ") << event_number);
   DEBUG_PRINT(F("> op_code = ") << opc);
 
-  switch (opc) {
-
+  switch (opc)
+  {
     case OPC_ACON:
     case OPC_ASON:
       for (int i = 0; i < NUM_LEDS; i++)
       {
-        byte ev = i + 1;
+        byte ev = i + 1 + GLOBAL_EVS;
         byte evval = config.getEventEVval(index, ev);
 
         switch (evval)
@@ -352,13 +368,24 @@ void eventhandler(byte index, CANFrame *msg)
             break;
         }
       }
+      {
+        byte sodVal = config.getEventEVval(index, 1);
+        if (sodVal == 1)
+        {
+          if (nextSodSwitchIndex < 0) // Check if a SOD is already in progress.
+          {
+            nextSodSwitchIndex = 0;
+            nextSodMessageTime = millis() + SOD_INTERVAL;
+          }
+        }
+      }
       break;
 
     case OPC_ACOF:
     case OPC_ASOF:
       for (int i = 0; i < NUM_LEDS; i++)
       {
-        byte ev = i + 1;
+        byte ev = i + 1 + GLOBAL_EVS;
         byte evval = config.getEventEVval(index, ev);
 
         if (evval > 0) {
@@ -369,6 +396,52 @@ void eventhandler(byte index, CANFrame *msg)
   }
 }
 
+void processStartOfDay()
+{
+  if (nextSodSwitchIndex >= 0
+      && nextSodMessageTime < millis())
+  {
+    byte nv =  nextSodSwitchIndex + 1;
+    byte nvval = config.readNV(nv);
+    byte opCode;
+    bool isSuccess = true;
+
+    switch (nvval)
+    {
+      case 0:
+        // ON and OFF
+        opCode = (moduleSwitch[nextSodSwitchIndex].read() == LOW ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodSwitchIndex
+            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
+        break;
+
+      case 3:
+        // Toggle button - use saved state.
+        opCode = (switchState[nextSodSwitchIndex] ? OPC_ACON : OPC_ACOF);
+        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodSwitchIndex
+            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
+        break;
+    }
+    if (!isSuccess) 
+    {
+      DEBUG_PRINT(F("> One of the send message events failed"));
+    }
+    
+
+    if (++nextSodSwitchIndex >= NUM_SWITCHES)
+    {
+      DEBUG_PRINT(F("> Done  all SOD events."));
+      nextSodSwitchIndex = -1;
+    }
+    else
+    {
+      DEBUG_PRINT(F("> Prepare for next SOD event."));
+      nextSodMessageTime = millis() + SOD_INTERVAL;
+    }
+  }
+}
 
 void printConfig(void)
 {
