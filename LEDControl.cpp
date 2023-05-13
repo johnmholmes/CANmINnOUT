@@ -38,7 +38,7 @@ void LEDControl::off(void) {
 
 // blink LED
 
-void LEDControl::flash(int period) {
+void LEDControl::flash(unsigned int period) {
 
   _flash = true;
   _period = period;
@@ -57,13 +57,6 @@ void LEDControl::run() {
       _lastTime = millis();
     }
   }
-/*  _write(_pin, _state);
-}
 
-// write to the physical pin
-
-void LEDControl::_write(byte pin, bool state) {
-*/
-  // Serial << F("> mcu pin = ") << pin << F(", state = ") << state << endl;
   digitalWrite(_pin, _state);
 }

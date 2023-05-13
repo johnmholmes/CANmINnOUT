@@ -70,7 +70,7 @@
 // Digital / Analog pin 5     Not Used
 //////////////////////////////////////////////////////////////////////////
 
-#define DEBUG 0       // set to 0 for no serial debug
+#define DEBUG 1  // set to 0 for no serial debug
 
 #if DEBUG
 #define DEBUG_PRINT(S) Serial << S << endl
@@ -83,10 +83,10 @@
 #include <Bounce2.h>
 
 // CBUS library header files
-#include <CBUS2515.h>            // CAN controller and CBUS class
-#include "LEDControl.h"          // CBUS LEDs
-#include <CBUSconfig.h>          // module configuration
-#include <cbusdefs.h>            // MERG CBUS constants
+#include <CBUS2515.h>    // CAN controller and CBUS class
+#include "LEDControl.h"  // CBUS LEDs
+#include <CBUSconfig.h>  // module configuration
+#include <cbusdefs.h>    // MERG CBUS constants
 #include <CBUSParams.h>
 
 ////////////DEFINE MODULE/////////////////////////////////////////////////
@@ -95,18 +95,16 @@
 unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 // constants
-const byte VER_MAJ = 2;         // code major version
-const char VER_MIN = ' ';       // code minor version
-const byte VER_BETA = 0;        // code beta sub-version
-const byte MODULE_ID = 99;      // CBUS module type
+const byte VER_MAJ = 2;     // code major version
+const char VER_MIN = 'a';   // code minor version
+const byte VER_BETA = 0;    // code beta sub-version
+const byte MODULE_ID = 99;  // CBUS module type
 
-const unsigned long CAN_OSC_FREQ = 8000000;     // Oscillator frequency on the CAN2515 board
-
-const unsigned int SOD_INTERVAL = 20;    // milliseconds between SOD events.
+const unsigned long CAN_OSC_FREQ = 8000000;  // Oscillator frequency on the CAN2515 board
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
-const byte LED[] = {8, 7};      // LED pin connections through typ. 1K8 resistor
-const byte SWITCH[] = {9, 6};   // Module Switch takes input to 0V.
+const byte LED[] = { 8, 7 };     // LED pin connections through typ. 1K8 resistor
+const byte SWITCH[] = { 9, 6 };  // Module Switch takes input to 0V.
 
 const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
 const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
@@ -116,14 +114,14 @@ Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
 LEDControl moduleLED[NUM_LEDS];     //  LED as output
 byte switchState[NUM_SWITCHES];
 
-const int GLOBAL_EVS = 1;        // Number event variables for the module
-    // EV1 - StartOfDay
+const int GLOBAL_EVS = 1;  // Number event variables for the module
+                           // EV1 - StartOfDay
 
 // Variables for SOD state reporting event dispatching.
 // They indicate which switch (index of) to report next and at what time to send the next event.
-// An index of -1 indicates that there is no SOD reporting going on.
-int nextSodSwitchIndex = -1;
+int nextSodSwitchIndex = -1;  // An index of -1 indicates that there is no SOD reporting going on.
 unsigned int nextSodMessageTime = 0;
+const unsigned int SOD_INTERVAL = 20;  // milliseconds between SOD events.
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -135,34 +133,33 @@ const byte CAN_CS_PIN = 10;
 //const byte CAN_SCK_PIN = 13;  // Cannot be changed
 
 // CBUS objects
-CBUS2515 CBUS;                      // CBUS object
-CBUSConfig config;                  // configuration object
+CBUSConfig module_config;       // configuration object
+CBUS2515 CBUS(&module_config);  // CBUS object
 
 //
 ///  setup CBUS - runs once at power on called from setup()
 //
-void setupCBUS()
-{
+void setupCBUS() {
   // set config layout parameters
-  config.EE_NVS_START = 10;
-  config.EE_NUM_NVS = NUM_SWITCHES;
-  config.EE_EVENTS_START = 50;
-  config.EE_MAX_EVENTS = 64;
-  config.EE_NUM_EVS = GLOBAL_EVS + NUM_LEDS;
-  config.EE_BYTES_PER_EVENT = (config.EE_NUM_EVS + 4);
+  module_config.EE_NVS_START = 10;
+  module_config.EE_NUM_NVS = NUM_SWITCHES;
+  module_config.EE_EVENTS_START = 50;
+  module_config.EE_MAX_EVENTS = 64;
+  module_config.EE_NUM_EVS = GLOBAL_EVS + NUM_LEDS;
+  module_config.EE_BYTES_PER_EVENT = (module_config.EE_NUM_EVS + 4);
 
   // initialise and load configuration
-  config.setEEPROMtype(EEPROM_INTERNAL);
-  config.begin();
+  module_config.setEEPROMtype(EEPROM_INTERNAL);
+  module_config.begin();
 
-  Serial << F("> mode = ") << ((config.FLiM) ? "FLiM" : "SLiM") << F(", CANID = ") << config.CANID;
-  Serial << F(", NN = ") << config.nodeNum << endl;
+  Serial << F("> mode = ") << ((module_config.FLiM) ? "FLiM" : "SLiM") << F(", CANID = ") << module_config.CANID;
+  Serial << F(", NN = ") << module_config.nodeNum << endl;
 
   // show code version and copyright notice
   printConfig();
 
   // set module parameters
-  CBUSParams params(config);
+  CBUSParams params(module_config);
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
   params.setModuleId(MODULE_ID);
   params.setFlags(PF_FLiM | PF_COMBI);
@@ -175,20 +172,18 @@ void setupCBUS()
   CBUS.setEventHandler(eventhandler);
 
   // configure and start CAN bus and CBUS message processing
-  CBUS.setNumBuffers(2);         // more buffers = more memory used, fewer = less
-  CBUS.setOscFreq(CAN_OSC_FREQ);   // select the crystal frequency of the CAN module
-  CBUS.setPins(CAN_CS_PIN, CAN_INT_PIN);           // select pins for CAN bus CE and interrupt connections
+  CBUS.setNumBuffers(2);                  // more buffers = more memory used, fewer = less
+  CBUS.setOscFreq(CAN_OSC_FREQ);          // select the crystal frequency of the CAN module
+  CBUS.setPins(CAN_CS_PIN, CAN_INT_PIN);  // select pins for CAN bus CE and interrupt connections
   CBUS.begin();
 }
 //
 ///  setup Module - runs once at power on called from setup()
 //
 
-void setupModule()
-{
+void setupModule() {
   // configure the module switches, active low
-  for (int i = 0; i < NUM_SWITCHES; i++)
-  {
+  for (int i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
     moduleSwitch[i].interval(5);
     switchState[i] = false;
@@ -203,10 +198,11 @@ void setupModule()
 }
 
 
-void setup()
-{
-  Serial.begin (115200);
-  Serial << endl << endl << F("> ** CBUS m in n out v1 ** ") << __FILE__ << endl;
+void setup() {
+  Serial.begin(115200);
+  Serial << endl
+         << endl
+         << F("> ** CBUS m in n out v1 ** ") << __FILE__ << endl;
 
   setupCBUS();
   setupModule();
@@ -216,8 +212,7 @@ void setup()
 }
 
 
-void loop()
-{
+void loop() {
   // do CBUS message, switch and LED processing
   CBUS.process();
 
@@ -235,35 +230,30 @@ void loop()
   processStartOfDay();
 }
 
-void processSwitches(void)
-{
+void processSwitches(void) {
   bool isSuccess = true;
-  for (int i = 0; i < NUM_SWITCHES; i++)
-  {
+  for (int i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].update();
-    if (moduleSwitch[i].changed())
-    {
+    if (moduleSwitch[i].changed()) {
       byte nv = i + 1;
-      byte nvval = config.readNV(nv);
+      byte nvval = module_config.readNV(nv);
       byte opCode;
 
       DEBUG_PRINT(F("> Button ") << i << F(" state change detected"));
-      Serial << F (" NV = ") << nv << F(" NV Value = ") << nvval << endl;
+      Serial << F(" NV = ") << nv << F(" NV Value = ") << nvval << endl;
 
-      switch (nvval)
-      {
+      switch (nvval) {
         case 0:
           // ON and OFF
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
-              << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+                                     << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
           isSuccess = sendEvent(opCode, (i + 1));
           break;
 
         case 1:
           // Only ON
-          if (moduleSwitch[i].fell())
-          {
+          if (moduleSwitch[i].fell()) {
             opCode = OPC_ACON;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACON));
             isSuccess = sendEvent(opCode, (i + 1));
@@ -272,8 +262,7 @@ void processSwitches(void)
 
         case 2:
           // Only OFF
-          if (moduleSwitch[i].fell())
-          {
+          if (moduleSwitch[i].fell()) {
             opCode = OPC_ACOF;
             DEBUG_PRINT(F("> Button ") << i << F(" pressed, send 0x") << _HEX(OPC_ACOF));
             isSuccess = sendEvent(opCode, (i + 1));
@@ -282,12 +271,11 @@ void processSwitches(void)
 
         case 3:
           // Toggle button
-          if (moduleSwitch[i].fell())
-          {
+          if (moduleSwitch[i].fell()) {
             switchState[i] = !switchState[i];
             opCode = (switchState[i] ? OPC_ACON : OPC_ACOF);
             DEBUG_PRINT(F("> Button ") << i
-                << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+                                       << (moduleSwitch[i].fell() ? F(" pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
             isSuccess = sendEvent(opCode, (i + 1));
           }
 
@@ -299,21 +287,19 @@ void processSwitches(void)
       }
     }
   }
-  if (!isSuccess) 
-  {
+  if (!isSuccess) {
     DEBUG_PRINT(F("> One of the send message events failed"));
   }
 }
 
 // Send an event routine according to Module Switch
-bool sendEvent(byte opCode, unsigned int eventNo)
-{
+bool sendEvent(byte opCode, unsigned int eventNo) {
   CANFrame msg;
-  msg.id = config.CANID;
+  msg.id = module_config.CANID;
   msg.len = 5;
   msg.data[0] = opCode;
-  msg.data[1] = highByte(config.nodeNum);
-  msg.data[2] = lowByte(config.nodeNum);
+  msg.data[1] = highByte(module_config.nodeNum);
+  msg.data[2] = lowByte(module_config.nodeNum);
   msg.data[3] = highByte(eventNo);
   msg.data[4] = lowByte(eventNo);
 
@@ -329,29 +315,25 @@ bool sendEvent(byte opCode, unsigned int eventNo)
 //
 /// called from the CBUS library when a learned event is received
 //
-void eventhandler(byte index, CANFrame *msg)
-{
+void eventhandler(byte index, CANFrame *msg) {
   byte opc = msg->data[0];
 
   DEBUG_PRINT(F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(msg->data[0]));
   DEBUG_PRINT(F("> event handler: length = ") << msg->len);
 
-  unsigned int node_number = (msg->data[1] << 8 ) + msg->data[2];
-  unsigned int event_number = (msg->data[3] << 8 ) + msg->data[4];
+  unsigned int node_number = (msg->data[1] << 8) + msg->data[2];
+  unsigned int event_number = (msg->data[3] << 8) + msg->data[4];
   DEBUG_PRINT(F("> NN = ") << node_number << F(", EN = ") << event_number);
   DEBUG_PRINT(F("> op_code = ") << opc);
 
-  switch (opc)
-  {
+  switch (opc) {
     case OPC_ACON:
     case OPC_ASON:
-      for (int i = 0; i < NUM_LEDS; i++)
-      {
+      for (int i = 0; i < NUM_LEDS; i++) {
         byte ev = i + 1 + GLOBAL_EVS;
-        byte evval = config.getEventEVval(index, ev);
+        byte evval = module_config.getEventEVval(index, ev);
 
-        switch (evval)
-        {
+        switch (evval) {
           case 1:
             moduleLED[i].on();
             break;
@@ -369,11 +351,10 @@ void eventhandler(byte index, CANFrame *msg)
         }
       }
       {
-        byte sodVal = config.getEventEVval(index, 1);
-        if (sodVal == 1)
-        {
-          if (nextSodSwitchIndex < 0) // Check if a SOD is already in progress.
-          {
+        byte sodVal = module_config.getEventEVval(index, 1);
+        if (sodVal == 1) {
+          // Check if a SOD is already in progress.
+          if (nextSodSwitchIndex < 0) {
             nextSodSwitchIndex = 0;
             nextSodMessageTime = millis() + SOD_INTERVAL;
           }
@@ -383,10 +364,9 @@ void eventhandler(byte index, CANFrame *msg)
 
     case OPC_ACOF:
     case OPC_ASOF:
-      for (int i = 0; i < NUM_LEDS; i++)
-      {
+      for (int i = 0; i < NUM_LEDS; i++) {
         byte ev = i + 1 + GLOBAL_EVS;
-        byte evval = config.getEventEVval(index, ev);
+        byte evval = module_config.getEventEVval(index, ev);
 
         if (evval > 0) {
           moduleLED[i].off();
@@ -396,61 +376,50 @@ void eventhandler(byte index, CANFrame *msg)
   }
 }
 
-void processStartOfDay()
-{
-  if (nextSodSwitchIndex >= 0
-      && nextSodMessageTime < millis())
-  {
-    byte nv =  nextSodSwitchIndex + 1;
-    byte nvval = config.readNV(nv);
+void processStartOfDay() {
+  if (nextSodSwitchIndex >= 0 && nextSodMessageTime < millis()) {
+    byte nv = nextSodSwitchIndex + 1;
+    byte nvval = module_config.readNV(nv);
     byte opCode;
     bool isSuccess = true;
 
-    switch (nvval)
-    {
+    switch (nvval) {
       case 0:
         // ON and OFF
         opCode = (moduleSwitch[nextSodSwitchIndex].read() == LOW ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodSwitchIndex
-            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        DEBUG_PRINT(F("> SOD: Push Button ") << nextSodSwitchIndex << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
         isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
         break;
 
       case 3:
         // Toggle button - use saved state.
         opCode = (switchState[nextSodSwitchIndex] ? OPC_ACON : OPC_ACOF);
-        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodSwitchIndex
-            << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
+        DEBUG_PRINT(F("> SOD: Toggle Button ") << nextSodSwitchIndex << " is " << (moduleSwitch[nextSodSwitchIndex].read() ? F("pressed, send 0x") : F(" released, send 0x")) << _HEX(opCode));
         isSuccess = sendEvent(opCode, (nextSodSwitchIndex + 1));
         break;
     }
-    if (!isSuccess) 
-    {
+    if (!isSuccess) {
       DEBUG_PRINT(F("> One of the send message events failed"));
     }
-    
 
-    if (++nextSodSwitchIndex >= NUM_SWITCHES)
-    {
+
+    if (++nextSodSwitchIndex >= NUM_SWITCHES) {
       DEBUG_PRINT(F("> Done  all SOD events."));
       nextSodSwitchIndex = -1;
-    }
-    else
-    {
+    } else {
       DEBUG_PRINT(F("> Prepare for next SOD event."));
       nextSodMessageTime = millis() + SOD_INTERVAL;
     }
   }
 }
 
-void printConfig(void)
-{
+void printConfig(void) {
   // code version
   Serial << F("> code version = ") << VER_MAJ << VER_MIN << F(" beta ") << VER_BETA << endl;
   Serial << F("> compiled on ") << __DATE__ << F(" at ") << __TIME__ << F(", compiler ver = ") << __cplusplus << endl;
 
   // copyright
-  Serial << F("> © Martin Da Costa (MERG M6223) 2021") << endl;
+  Serial << F("> © Martin Da Costa (MERG M6223) 2023") << endl;
   Serial << F("> © Duncan Greenwood (MERG M5767) 2021") << endl;
   Serial << F("> © John Fletcher (MERG M6777) 2021") << endl;
   Serial << F("> © Sven Rosvall (MERG M3777) 2021") << endl;
@@ -460,8 +429,7 @@ void printConfig(void)
 /// command interpreter for serial console input
 //
 
-void processSerialInput(void)
-{
+void processSerialInput(void) {
   byte uev = 0;
   char msgstr[32];
 
@@ -476,27 +444,28 @@ void processSerialInput(void)
 
         // node identity
         Serial << F("> CBUS node configuration") << endl;
-        Serial << F("> mode = ") << (config.FLiM ? "FLiM" : "SLiM") << F(", CANID = ") << config.CANID << F(", node number = ") << config.nodeNum << endl;
+        Serial << F("> mode = ") << (module_config.FLiM ? "FLiM" : "SLiM") << F(", CANID = ") << module_config.CANID << F(", node number = ") << module_config.nodeNum << endl;
         Serial << endl;
         break;
 
       case 'e':
         // EEPROM learned event data table
         Serial << F("> stored events ") << endl;
-        Serial << F("  max events = ") << config.EE_MAX_EVENTS << F(" EVs per event = ") << config.EE_NUM_EVS << F(" bytes per event = ") << config.EE_BYTES_PER_EVENT << endl;
+        Serial << F("  max events = ") << module_config.EE_MAX_EVENTS << F(" EVs per event = ") << module_config.EE_NUM_EVS << F(" bytes per event = ") << module_config.EE_BYTES_PER_EVENT << endl;
 
-        for (byte j = 0; j < config.EE_MAX_EVENTS; j++) {
-          if (config.getEvTableEntry(j) != 0) {
+        for (byte j = 0; j < module_config.EE_MAX_EVENTS; j++) {
+          if (module_config.getEvTableEntry(j) != 0) {
             ++uev;
           }
         }
 
-        Serial << F("  stored events = ") << uev << F(", free = ") << (config.EE_MAX_EVENTS - uev) << endl;
-        Serial << F("  using ") << (uev * config.EE_BYTES_PER_EVENT) << F(" of ") << (config.EE_MAX_EVENTS * config.EE_BYTES_PER_EVENT) << F(" bytes") << endl << endl;
+        Serial << F("  stored events = ") << uev << F(", free = ") << (module_config.EE_MAX_EVENTS - uev) << endl;
+        Serial << F("  using ") << (uev * module_config.EE_BYTES_PER_EVENT) << F(" of ") << (module_config.EE_MAX_EVENTS * module_config.EE_BYTES_PER_EVENT) << F(" bytes") << endl
+               << endl;
 
         Serial << F("  Ev#  |  NNhi |  NNlo |  ENhi |  ENlo | ");
 
-        for (byte j = 0; j < (config.EE_NUM_EVS); j++) {
+        for (byte j = 0; j < (module_config.EE_NUM_EVS); j++) {
           sprintf(msgstr, "EV%03d | ", j + 1);
           Serial << msgstr;
         }
@@ -506,18 +475,18 @@ void processSerialInput(void)
         Serial << F(" --------------------------------------------------------------") << endl;
 
         // for each event data line
-        for (byte j = 0; j < config.EE_MAX_EVENTS; j++) {
-          if (config.getEvTableEntry(j) != 0) {
+        for (byte j = 0; j < module_config.EE_MAX_EVENTS; j++) {
+          if (module_config.getEvTableEntry(j) != 0) {
             sprintf(msgstr, "  %03d  | ", j);
             Serial << msgstr;
 
             // for each data byte of this event
-            for (byte e = 0; e < (config.EE_NUM_EVS + 4); e++) {
-              sprintf(msgstr, " 0x%02hx | ", config.readEEPROM(config.EE_EVENTS_START + (j * config.EE_BYTES_PER_EVENT) + e));
+            for (byte e = 0; e < (module_config.EE_NUM_EVS + 4); e++) {
+              sprintf(msgstr, " 0x%02hx | ", module_config.readEEPROM(module_config.EE_EVENTS_START + (j * module_config.EE_BYTES_PER_EVENT) + e));
               Serial << msgstr;
             }
 
-            sprintf(msgstr, "%4d |", config.getEvTableEntry(j));
+            sprintf(msgstr, "%4d |", module_config.getEvTableEntry(j));
             Serial << msgstr << endl;
           }
         }
@@ -533,13 +502,14 @@ void processSerialInput(void)
         Serial << F("   NV   Val") << endl;
         Serial << F("  --------------------") << endl;
 
-        for (byte j = 1; j <= config.EE_NUM_NVS; j++) {
-          byte v = config.readNV(j);
+        for (byte j = 1; j <= module_config.EE_NUM_NVS; j++) {
+          byte v = module_config.readNV(j);
           sprintf(msgstr, " - %02d : %3hd | 0x%02hx", j, v, v);
           Serial << msgstr << endl;
         }
 
-        Serial << endl << endl;
+        Serial << endl
+               << endl;
 
         break;
 
@@ -550,7 +520,7 @@ void processSerialInput(void)
 
       case 'h':
         // event hash table
-        config.printEvHashTable(false);
+        module_config.printEvHashTable(false);
         break;
 
       case 'y':
@@ -560,12 +530,12 @@ void processSerialInput(void)
 
       case '*':
         // reboot
-        config.reboot();
+        module_config.reboot();
         break;
 
       case 'm':
         // free memory
-        Serial << F("> free SRAM = ") << config.freeSRAM() << F(" bytes") << endl;
+        Serial << F("> free SRAM = ") << module_config.freeSRAM() << F(" bytes") << endl;
         break;
 
       case 'r':
@@ -582,18 +552,16 @@ void processSerialInput(void)
           Serial << F(">Reset & EEPROM wipe requested. Press 'z' again within 2 secs to confirm") << endl;
           ResWaitTime = millis();
           ResetRq = true;
-        }
-        else {
+        } else {
           // This is a confirmed request
           // 2 sec timeout
           if (ResetRq && ((millis() - ResWaitTime) > 2000)) {
             Serial << F(">timeout expired, reset not performed") << endl;
             ResetRq = false;
-          }
-          else {
+          } else {
             //Request confirmed within timeout
             Serial << F(">RESETTING AND WIPING EEPROM") << endl;
-            config.resetModule();
+            module_config.resetModule();
             ResetRq = false;
           }
         }
