@@ -144,10 +144,11 @@ The following NV values define input switch function:
 
 NV Value | Function
 --------|--------
- 0 | On/Off switch
- 1 | On only push button
- 2 | Off only push button
- 3 | On/Off toggle push button
+ 0 | No action
+ 1 | On/Off switch
+ 2 | On only push button
+ 3 | Off only push button
+ 4 | On/Off toggle push button
  
 ### Start Of Day
 
