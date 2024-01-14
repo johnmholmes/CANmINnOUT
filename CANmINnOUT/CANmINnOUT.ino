@@ -50,24 +50,28 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // Pin Use map UNO:
 // Digital pin 2          Interupt CAN
-// Digital pin 3 (PWM)    Not Used
-// Digital pin 4          Not Used
-// Digital pin 5 (PWM)    Not Used
-// Digital pin 6 (PWM)    Module Switch 2
-// Digital pin 7          Module LED 2
-// Digital pin 8          Module LED 1
-// Digital pin 9 (PWM)    Module Switch 1
+// Digital pin 3 (PWM)    LED 1
+// Digital pin 4          LED 2
+// Digital pin 5 (PWM)    LED 3
+// Digital pin 6 (PWM)    LED 4
+// Digital pin 7          LED 5
+// Digital pin 8          lED 6
+// Digital pin 9 (PWM)    NOT USED BUT LEFT FOR SOD SWITCH
 // Digital pin 10 (SS)    CS    CAN
 // Digital pin 11 (MOSI)  SI    CAN
 // Digital pin 12 (MISO)  SO    CAN
 // Digital pin 13 (SCK)   Sck   CAN
 
-// Digital / Analog pin 0     Not Used
-// Digital / Analog pin 1     Not Used
-// Digital / Analog pin 2     Not Used
-// Digital / Analog pin 3     Not Used
-// Digital / Analog pin 4     Not Used
-// Digital / Analog pin 5     Not Used
+// Digital / Analog pin 0     SWITCH 1
+// Digital / Analog pin 1     SWITCH 2
+// Digital / Analog pin 2     SWITCH 3
+// Digital / Analog pin 3     SWITCH 4
+// Digital / Analog pin 4     SWITCH 5
+// Digital / Analog pin 5     SWITCH 6
+//////////////////////////////////////////////////////////////////////////
+
+// 6IN6OUT setup for seperate module by John Holmes only small changes to original sketch
+
 //////////////////////////////////////////////////////////////////////////
 
 #define DEBUG 1  // set to 0 for no serial debug
@@ -92,7 +96,7 @@
 ////////////DEFINE MODULE/////////////////////////////////////////////////
 
 // module name
-unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
+unsigned char mname[7] = { '6', 'I', 'N', '6', 'O', 'U', 'T' };
 
 // constants
 const byte VER_MAJ = 2;     // code major version
@@ -103,8 +107,8 @@ const byte MODULE_ID = 99;  // CBUS module type
 const unsigned long CAN_OSC_FREQ = 8000000;  // Oscillator frequency on the CAN2515 board
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
-const byte LED[] = { 8, 7 };     // LED pin connections through typ. 1K8 resistor
-const byte SWITCH[] = { 9, 6 };  // Module Switch takes input to 0V.
+const byte LED[] = { 3, 4, 5, 6, 7, 8 };     // LED pin connections through typ. 1K8 resistor
+const byte SWITCH[] = { A0, A1, A2, A3, A4, A5 };  // Module Switch takes input to 0V.
 
 const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
 const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
