@@ -2,8 +2,12 @@
 
 ## This fork last edited 13/1/2024
 
-- Added a wiki for my benifit only
+### Changes from original repository
 
+- Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
+- Showing a 6 in 6 out version of the sketch.
+
+  
 # CANmINnOUT
 
 An Arduino program to allocate all available device pins as either switch input or LED output.
