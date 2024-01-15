@@ -107,7 +107,7 @@ const byte MODULE_ID = 99;  // CBUS module type
 const unsigned long CAN_OSC_FREQ = 8000000;  // Oscillator frequency on the CAN2515 board
 
 //Module pins available for use are Pins 3 - 9 and A0 - A5
-const byte LED[] = { 3, 4, 5, 6, 7, 8 };     // LED pin connections through typ. 1K8 resistor
+const byte LED[] = { 3, 4, 5, 6, 7, 8 };     // LED pin connections through a 1K8 resistor
 const byte SWITCH[] = { A0, A1, A2, A3, A4, A5 };  // Module Switch takes input to 0V.
 
 const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
