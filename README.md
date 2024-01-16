@@ -6,7 +6,6 @@
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
-- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed)
 
 
 ### See for anything requested to be changed
@@ -57,7 +56,8 @@ no digital input or output capability. These are thus of no interest in this app
 **It is the users responsibility to ensure that the total current that the Arduino is asked to supply stays within the capacity of the on board regulator. 
 The user should also ensure that the total pin out current source or sink stays within the maximum current rating of the Atmel processor. 
 Failure to do this will result in terminal damage to your Arduino.** 
-- "it is the Atmel cheap that will be damaged not the Arduino onboard regulator"
+
+
 
 Pins defined as inputs are active low.  That is to say that they are pulled up by an 
 internal resistor. The input switch should connect the pin to 0 Volts.
