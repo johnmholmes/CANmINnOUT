@@ -6,6 +6,7 @@
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
+- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed)
 
 
 Anything below this line has not been edited from the original version, as it is excellent already
