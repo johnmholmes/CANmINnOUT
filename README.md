@@ -9,7 +9,9 @@
 - Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed)
 
 
-Anything below this line has not been edited from the original version, as it is excellent already
+### See for anything requested to be changed
+
+- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed)
 -----
 
   
