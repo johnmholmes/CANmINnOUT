@@ -51,9 +51,9 @@ The total of input and output pins (m + n) cannot exceed these numbers.
 The Nano also has inputs A6 & A7.  However, these are analogue inputs only and have
 no digital input or output capability. These are thus of no interest in this application.
 
-**It is the users responsibility that the total current that the Arduino is asked to supply 
-stays within the capacity of the on board regulator.  Failure to do this will result in 
-terminal damage to your Arduino.**
+**It is the users responsibility to ensure that the total current that the Arduino is asked to supply stays within the capacity of the on board regulator. 
+The user should also ensure that the total pin out current source or sink stays within the maximum current rating of the Atmel processor. 
+Failure to do this will result in terminal damage to your Arduino.** "it is the Atmel cheap theat will be damaged not the Arduino onboard regulator"
 
 Pins defined as inputs are active low.  That is to say that they are pulled up by an 
 internal resistor. The input switch should connect the pin to 0 Volts.
