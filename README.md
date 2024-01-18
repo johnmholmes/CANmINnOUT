@@ -8,9 +8,9 @@
 - Showing a 6 in 6 out version of the sketch.
 
 
-### See for anything requested to be changed
+### See anything I requested to be changed
 
-- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed)
+- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed) Minor rewrite of warning
 -----
 
   
