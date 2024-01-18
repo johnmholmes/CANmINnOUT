@@ -1,8 +1,8 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-## This fork last edited 16/1/2024
+## This fork last edited 18/1/2024
 
-### Changes from original repository
+### Changes from Martin's original repository
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
