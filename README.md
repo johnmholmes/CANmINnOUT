@@ -1,8 +1,10 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-## This fork last edited 23/1/2024
+## This fork last edited 24/1/2024
 
 ### Changes from Martin's original repository
+
+Original sketch has been rmoved from this repository and is being replaced by seperate sketchs to help people who do not want to alter any code.
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
@@ -10,11 +12,11 @@
 
 ### See anything I requested to be changed
 
-- Warning amended as its the Atmel chip that gets damaged. (Change requested but issue closed) Minor rewrite of warning
+- Warning amended as its the Atmel chip that gets damaged. (Change requested issue closed) Minor rewrite of warning
 -----
-
+# Martin's Read Me
   
-# CANmINnOUT
+## CANmINnOUT
 
 An Arduino program to allocate all available device pins as either switch input or LED output.
 To this end, the number of input pins is regarded as 'm' and the number of output pins as 'n'.
