@@ -427,7 +427,7 @@ void printConfig(void) {
   Serial << F("> © Duncan Greenwood (MERG M5767) 2021") << endl;
   Serial << F("> © John Fletcher (MERG M6777) 2021") << endl;
   Serial << F("> © Sven Rosvall (MERG M3777) 2021") << endl;
-  Serial << F("> © John Holmes (MERG M8528) 2024") << endl;
+  Serial << F("> John Holmes (Code adapted) 2024)") << endl;
 }
 
 //
