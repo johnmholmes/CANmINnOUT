@@ -1,6 +1,6 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-## This fork last edited 25/1/2024
+## This fork last edited 28/1/2024
 
 ### Changes from Martin's original repository
 
@@ -8,6 +8,10 @@ Original sketch has been removed from this repository and is being replaced by s
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
+
+### The Final section
+- Once I have shown the units being taught an event this will be the last I will show for MERG CBUS.
+- I plan to go back to the hard coding method for simple modules, As the is little interest by the developers to include this type of things. They are more focused on kit development than recreating MERG kit types.
 
 
 ### See anything I requested to be changed
