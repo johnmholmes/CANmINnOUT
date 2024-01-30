@@ -4,7 +4,7 @@
 
 ## Changes from Martin's original repository
 
-Original sketch has been removed from this repository and is being replaced by seperate sketchs to help people who do not want to alter any code.
+Original sketch has been removed from this repository and is being replaced by seperate sketchs to help people who do not want to alter any code. So they can download the folder they want to use and open it in the Arduino Ide.
 
 - Added a wiki for my benifit so I can keep a record of any changes to the sketch I make. Also I will be showing how I have used the Arduino Nano and the small MCP2515 module for my YouTube channel to help beginners to Arduino CBUS.
 - Showing a 6 in 6 out version of the sketch.
