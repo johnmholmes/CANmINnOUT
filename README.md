@@ -1,8 +1,8 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-## This fork last edited 28/1/2024
+## This fork last edited 30/1/2024
 
-### Changes from Martin's original repository
+## Changes from Martin's original repository
 
 Original sketch has been removed from this repository and is being replaced by seperate sketchs to help people who do not want to alter any code.
 
@@ -15,11 +15,11 @@ Original sketch has been removed from this repository and is being replaced by s
 - I am more interested in helping people to be able to adopt a simple module approach.
 
 
-### See anything I requested to be changed
+## See anything I requested to be changed
 
 - Warning amended as its the Atmel chip that gets damaged. (Change requested issue closed) Minor rewrite of warning
 -----
-# Martin's Read Me
+# Martin's Read Me Not changed by me
   
 ## CANmINnOUT
 
