@@ -1,7 +1,6 @@
 
 // CANmINnOUT
 
-
 /*
   Copyright (C) 2021 Martin Da Costa
   Including copyrights from CBUS_1in1out and Arduino CBUS Libraries
