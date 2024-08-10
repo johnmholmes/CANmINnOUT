@@ -1,6 +1,10 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-## This fork last edited 15/6/2024
+## This fork last edited 10/8/24
+
+## Minor changes for the manufacture and a fprint change
+
+I have modified the 6 in 6 out code to reflect some of the changes that Martin has made in his repository. I have not changed the switch case numbers as this would cause an issue for people following the original YouTube videos I have made.
 
 ## Changes from Martin's original repository
 
